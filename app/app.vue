@@ -1,11 +1,11 @@
 <template>
   <div class="app-wrapper">
     <NuxtRouteAnnouncer />
-    <Header />
     <main class="main-content">
-      <NuxtPage />
+      <NuxtLayout>
+        <NuxtPage />
+      </NuxtLayout>
     </main>
-    <Footer />
   </div>
 </template>
 
