@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "about": "Sobre nosotros",
+    "login": "Iniciar sesión con Battle.net"
+  },
+  "home": {
+    "title": "Bienvenido a MiniGame",
+    "subtitle": "Para descubrir más juegos, por favor inicia sesión en Battle.net",
+    "loginBattleNet": "Iniciar sesión con Battle.net"
+  }, 
+    "about": {
+        "title": "Sobre nosotros",
+        "content": "MiniGame es una plataforma dedicada a ofrecer una variedad de mini-juegos para entretenimiento. Nuestra misión es brindar experiencias divertidas y atractivas para usuarios de todas las edades."
+    }, 
+  "footer": {
+    "content": "© 2023 MiniGame. Todos los derechos reservados."
+  }
+}

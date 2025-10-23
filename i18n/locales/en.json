@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About us",
+    "login": "Login with Battle.net"
+  },
+  "home": {
+    "title": "Welcome to MiniGame",
+    "subtitle": "To discover more games, please sign in with Battle.net",
+    "loginBattleNet": "Sign in with Battle.net"
+  },
+  "about": {
+    "title": "About Us",
+    "content": "MiniGame is a platform dedicated to providing a variety of mini-games for entertainment. Our mission is to offer fun and engaging experiences for users of all ages."
+  },
+  "footer": {
+    "content": "© 2023 MiniGame. All rights reserved."
+  }
+}
