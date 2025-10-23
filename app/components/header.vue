@@ -9,7 +9,6 @@
       <nav class="nav">
         <NuxtLink to="/">{{ t('nav.home') }}</NuxtLink>
         <NuxtLink to="/aboutUs">{{ t('nav.about') }}</NuxtLink>
-        <NuxtLink to="/login">{{ t('nav.login') }}</NuxtLink>
         <button @click="toggleLanguage" class="translator-btn">
           {{ locale === 'es' ? 'EN' : 'ES' }}
         </button>
@@ -20,8 +19,17 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n';
+import { useFetch, useNuxtApp } from '#imports';
 
 const { t, locale, setLocale } = useI18n();
+
+const me = useFetch('/api/auth/me');
+
+const logout = async () => {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  // reload to update UI
+  window.location.reload();
+};
 
 const toggleLanguage = () => {
   setLocale(locale.value === 'es' ? 'en' : 'es');

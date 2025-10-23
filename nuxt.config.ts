@@ -1,7 +1,16 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+declare const process: { env: Record<string, string | undefined> };
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  runtimeConfig: {
+    battlenetClientId: process.env.BATTLENET_CLIENT_ID,
+    battlenetClientSecret: process.env.BATTLENET_CLIENT_SECRET,
+    battlenetRegion: process.env.BATTLENET_REGION || 'eu',
+    public: {
+      baseURL: process.env.NUXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+    }
+  },
   modules: [
     '@nuxtjs/i18n'
   ],

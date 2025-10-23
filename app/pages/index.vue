@@ -16,8 +16,8 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const loginBattleNet = () => {
-  // Aquí iría la lógica de autenticación con Battle.net
-  alert('Redirigiendo a Battle.net...');
+  // Redirect to server-side login endpoint to start OAuth flow
+  window.location.href = '/api/auth/battlenet/login';
 };
 </script>
 

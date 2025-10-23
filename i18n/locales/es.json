@@ -2,7 +2,7 @@
   "nav": {
     "home": "Inicio",
     "about": "Sobre nosotros",
-    "login": "Iniciar sesión con Battle.net"
+  "login": "Iniciar sesión"
   },
   "home": {
     "title": "Bienvenido a MiniGame",
