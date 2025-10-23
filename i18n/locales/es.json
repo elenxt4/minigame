@@ -14,6 +14,16 @@
         "content": "MiniGame es una plataforma dedicada a ofrecer una variedad de mini-juegos para entretenimiento. Nuestra misión es brindar experiencias divertidas y atractivas para usuarios de todas las edades."
     }, 
   "footer": {
-    "content": "© 2023 MiniGame. Todos los derechos reservados."
+    "content": "2025 MiniGame. Todos los derechos reservados."
+  }
+  ,
+  "dashboard": {
+    "statistics": "Estadísticas",
+    "player": "Jugador",
+    "guest": "Invitado",
+    "play": "Jugar",
+    "playA": "Jugar Juego A",
+    "playB": "Jugar Juego B",
+    "recordWin": "Registrar victoria (test)"
   }
 }
