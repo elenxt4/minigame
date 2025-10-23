@@ -21,9 +21,18 @@
     "statistics": "Estadísticas",
     "player": "Jugador",
     "guest": "Invitado",
-    "play": "Jugar",
-    "playA": "Jugar Juego A",
-    "playB": "Jugar Juego B",
-    "recordWin": "Registrar victoria (test)"
+    "play": "Ahorcado",
+    "playA": "Fácil",
+    "playB": "Medio",
+    "playC": "Difícil"
+  }
+  ,
+  "hangman": {
+    "title": "Ahorcado",
+    "lives": "Vidas",
+    "won": "¡Has ganado! La palabra era",
+    "lost": "Juego terminado. La palabra era",
+    "reset": "Reiniciar",
+    "back": "Volver al dashboard"
   }
 }

@@ -23,11 +23,11 @@
 
 		<div class="right">
 			<h2>{{ t('dashboard.play') }}</h2>
-			<div class="actions">
-				<button class="play-btn primary">{{ t('dashboard.playA') }}</button>
-				<button class="play-btn">{{ t('dashboard.playB') }}</button>
-				<button class="play-btn" @click="recordWin">{{ t('dashboard.recordWin') }}</button>
-			</div>
+					<div class="actions">
+						<button class="play-btn primary" @click="() => router.push('/hangman')">{{ t('dashboard.playA') }}</button>
+						<button class="play-btn" @click="() => router.push('/game-b')">{{ t('dashboard.playB') }}</button>
+						<button class="play-btn" @click="recordWin">{{ t('dashboard.playC') }}</button>
+					</div>
 		</div>
 	</div>
 </template>
@@ -35,10 +35,12 @@
 <script setup>
 import { useFetch } from '#imports';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from '#imports';
 // fetch current user profile (returns { authenticated, profile })
 const me = useFetch('/api/auth/me');
 const stats = useFetch('/api/user/stats');
 const { t, locale, setLocale } = useI18n();
+const router = useRouter();
 
 const recordWin = async () => {
 	await $fetch('/api/user/stats', { method: 'POST', body: { increment: { gamesPlayed: 1, wins: 1, highScore: 1200 } } });
