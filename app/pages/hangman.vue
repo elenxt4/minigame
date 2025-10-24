@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from '#imports';
 import { useI18n } from 'vue-i18n';
 
@@ -49,15 +49,26 @@ const difficulty = ref('easy');
 const wordsList = ref([]);
 
 const loadWords = async (level) => {
-  try {
-    const res = await fetch(`/hangman/${level}.json`);
-    if (!res.ok) throw new Error('Failed to load words');
-    const json = await res.json();
-    wordsList.value = Array.isArray(json) ? json.map(w => String(w).toLowerCase()) : [];
-  } catch (err) {
-    console.error('loadWords error', err);
-    wordsList.value = ['javascript'];
+  // prefer locale-specific lists: /hangman/{lang}/{level}.json
+  const lang = (locale && locale.value) ? locale.value.split('-')[0] : 'en';
+  const paths = [
+    `/hangman/${lang}/${level}.json`,
+    `/hangman/${level}.json` // fallback to old location
+  ];
+
+  for (const p of paths) {
+    try {
+      const res = await fetch(p);
+      if (!res.ok) throw new Error('not ok');
+      const json = await res.json();
+      wordsList.value = Array.isArray(json) ? json.map(w => String(w).toLowerCase()) : [];
+      return;
+    } catch (err) {
+      // try next path
+    }
   }
+  // final fallback
+  wordsList.value = ['javascript'];
 };
 
 const pickWord = () => {
@@ -116,6 +127,17 @@ onMounted(async () => {
   await loadWords(difficulty.value);
   // pick a fresh word after the list is loaded
   word.value = pickWord();
+});
+
+// when the language changes, reload the appropriate word list (client-only)
+watch(locale, async (newLocale, oldLocale) => {
+  try {
+    // reload words for the current difficulty and pick a new word
+    await loadWords(difficulty.value);
+    word.value = pickWord();
+  } catch (e) {
+    // ignore
+  }
 });
 
 </script>
