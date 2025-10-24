@@ -24,15 +24,18 @@
 		<div class="right">
 			<h2>{{ t('dashboard.play') }}</h2>
 					<div class="actions">
-						<button class="play-btn primary" @click="() => router.push('/hangman')">{{ t('dashboard.playA') }}</button>
-						<button class="play-btn" @click="() => router.push('/game-b')">{{ t('dashboard.playB') }}</button>
-						<button class="play-btn" @click="recordWin">{{ t('dashboard.playC') }}</button>
+						<div class="diff-selector">
+							<button :class="['diff-btn', { active: selectedDifficulty === 'easy' }]" @click.prevent="play('easy')">{{ t('dashboard.playA') }}</button>
+							<button :class="['diff-btn', { active: selectedDifficulty === 'medium' }]" @click.prevent="play('medium')">{{ t('dashboard.playB') }}</button>
+							<button :class="['diff-btn', { active: selectedDifficulty === 'hard' }]" @click.prevent="play('hard')">{{ t('dashboard.playC') }}</button>
+						</div>
 					</div>
 		</div>
 	</div>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
 import { useFetch } from '#imports';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from '#imports';
@@ -41,6 +44,29 @@ const me = useFetch('/api/auth/me');
 const stats = useFetch('/api/user/stats');
 const { t, locale, setLocale } = useI18n();
 const router = useRouter();
+
+const selectedDifficulty = ref('easy');
+
+onMounted(() => {
+	try {
+		const saved = localStorage.getItem('hangman:difficulty');
+		if (saved) selectedDifficulty.value = saved;
+	} catch (e) {
+		// localStorage not available during SSR or blocked
+	}
+});
+
+const play = (level) => {
+	selectedDifficulty.value = level;
+	try {
+		if (typeof window !== 'undefined' && window.localStorage) {
+			localStorage.setItem('hangman:difficulty', level);
+		}
+	} catch (e) {
+		// ignore localStorage errors
+	}
+	router.push('/hangman');
+};
 
 const recordWin = async () => {
 	await $fetch('/api/user/stats', { method: 'POST', body: { increment: { gamesPlayed: 1, wins: 1, highScore: 1200 } } });
@@ -84,6 +110,9 @@ const recordWin = async () => {
 	gap: 1rem;
 	margin-top: 1rem;
 }
+.diff-selector{ display:flex; flex-direction:column; gap:0.6rem }
+.diff-btn{ padding:0.8rem 1rem; border-radius:10px; border:none; cursor:pointer; font-weight:700; width:100%; text-align:center }
+.diff-btn.active{ background: linear-gradient(135deg,#667eea,#764ba2); color: #fff }
 .play-btn {
 	padding: 1rem 1.2rem;
 	border-radius: 10px;

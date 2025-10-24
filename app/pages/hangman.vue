@@ -38,17 +38,32 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from '#imports';
 import { useI18n } from 'vue-i18n';
 
-const words = [
-  'javascript', 'vue', 'nuxt', 'programacion', 'desarrollo', 'juego', 'ahorcado', 'computadora'
-];
-
+// word lists are loaded from public/hangman/{easy|medium|hard}.json
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
-const pickWord = () => words[Math.floor(Math.random() * words.length)];
+const difficulty = ref('easy');
+const wordsList = ref([]);
+
+const loadWords = async (level) => {
+  try {
+    const res = await fetch(`/hangman/${level}.json`);
+    if (!res.ok) throw new Error('Failed to load words');
+    const json = await res.json();
+    wordsList.value = Array.isArray(json) ? json.map(w => String(w).toLowerCase()) : [];
+  } catch (err) {
+    console.error('loadWords error', err);
+    wordsList.value = ['javascript'];
+  }
+};
+
+const pickWord = () => {
+  if (!wordsList.value || wordsList.value.length === 0) return 'javascript';
+  return wordsList.value[Math.floor(Math.random() * wordsList.value.length)];
+};
 
 const word = ref(pickWord());
 const lives = ref(5);
@@ -70,7 +85,14 @@ const guess = (letter) => {
 };
 
 const resetGame = () => {
-  word.value = pickWord();
+  // ensure words are loaded for current difficulty
+  if (!wordsList.value || wordsList.value.length === 0) {
+    loadWords(difficulty.value).then(() => {
+      word.value = pickWord();
+    });
+  } else {
+    word.value = pickWord();
+  }
   lives.value = 5;
   guessed.value = [];
 };
@@ -80,6 +102,20 @@ const goBackToDashboard = () => router.push('/dashboard');
 
 const { t, locale } = useI18n();
 const setLang = (l) => { locale.value = l };
+
+
+
+onMounted(async () => {
+  try {
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('hangman:difficulty') : null;
+    if (saved) difficulty.value = saved;
+  } catch (e) {
+    // ignore
+  }
+  await loadWords(difficulty.value);
+  // ensure initial word
+  if (!word.value) word.value = pickWord();
+});
 
 </script>
 
@@ -123,6 +159,8 @@ const setLang = (l) => { locale.value = l };
 .lang-btn{ background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); padding:0.2rem 0.5rem; border-radius:6px; cursor:pointer }
 .lang-btn:hover{ color:#fff }
 .lang-btn[aria-pressed="true"], .lang-btn.active{ background:rgba(255,255,255,0.06); color:#fff }
+
+
 
 .word{ margin:1.4rem 0; display:flex; justify-content:center; gap:0.6rem; flex-wrap:wrap }
 .ch{ font-size:2.2rem; width:2rem; height:2.6rem; display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.03); border-radius:6px }
