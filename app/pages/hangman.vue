@@ -65,7 +65,8 @@ const pickWord = () => {
   return wordsList.value[Math.floor(Math.random() * wordsList.value.length)];
 };
 
-const word = ref(pickWord());
+// start empty so we don't show the default before the JSON is loaded
+const word = ref('');
 const lives = ref(5);
 const guessed = ref([]);
 
@@ -113,8 +114,8 @@ onMounted(async () => {
     // ignore
   }
   await loadWords(difficulty.value);
-  // ensure initial word
-  if (!word.value) word.value = pickWord();
+  // pick a fresh word after the list is loaded
+  word.value = pickWord();
 });
 
 </script>
