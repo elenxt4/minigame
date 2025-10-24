@@ -24,7 +24,10 @@
     "play": "Ahorcado",
     "playA": "Fácil",
     "playB": "Medio",
-    "playC": "Difícil"
+    "playC": "Difícil",
+    "games": "Partidas jugadas",
+    "wins": "Victorias",
+    "highScore": "Puntuación más alta"
   }
   ,
   "hangman": {

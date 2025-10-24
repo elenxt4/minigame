@@ -41,6 +41,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from '#imports';
 import { useI18n } from 'vue-i18n';
+import { useGameStore } from '../../stores/game';
 
 // word lists are loaded from public/hangman/{easy|medium|hard}.json
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
@@ -115,6 +116,8 @@ const goBackToDashboard = () => router.push('/dashboard');
 const { t, locale } = useI18n();
 const setLang = (l) => { locale.value = l };
 
+const game = useGameStore();
+
 
 
 onMounted(async () => {
@@ -125,6 +128,8 @@ onMounted(async () => {
     // ignore
   }
   await loadWords(difficulty.value);
+  // load persisted game stats
+  try { game.load() } catch (e) {}
   // pick a fresh word after the list is loaded
   word.value = pickWord();
 });
@@ -137,6 +142,28 @@ watch(locale, async (newLocale, oldLocale) => {
     word.value = pickWord();
   } catch (e) {
     // ignore
+  }
+});
+
+// When we win, add points and record win in the store
+watch(gameWon, async (v) => {
+  if (v) {
+    const points = (lives.value || 0) * 100
+    try { game.addScore(points) } catch (e) {}
+    try { game.recordWin() } catch (e) {}
+
+    // Also report to server-side stats endpoint (best-effort)
+    try {
+      await $fetch('/api/user/stats', {
+        method: 'POST',
+        body: { increment: { gamesPlayed: 1, wins: 1, highScore: game.highScore } }
+      })
+      // notify local store that server-side stats were updated so other pages (dashboard)
+      // can react and refresh their server-backed data immediately
+      try { game.markServerUpdated() } catch (e) { /* ignore */ }
+    } catch (e) {
+      // ignore network errors
+    }
   }
 });
 

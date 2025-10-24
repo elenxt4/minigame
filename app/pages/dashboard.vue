@@ -7,16 +7,16 @@
 				<p class="player">{{ t('dashboard.player') }}: <strong>{{ me.data?.profile?.name || t('dashboard.guest') }}</strong></p>
 			<div class="stats">
 				<div class="stat-card">
-					<h3>Games played</h3>
-					<p class="value">{{ stats.data?.stats?.gamesPlayed ?? '—' }}</p>
+					<h3>{{ t('dashboard.games') }}</h3>
+					<p class="value">{{ game.gamesPlayed > 0 ? game.gamesPlayed : (stats.data?.stats?.gamesPlayed ?? '—') }}</p>
 				</div>
 				<div class="stat-card">
-					<h3>Wins</h3>
-					<p class="value">{{ stats.data?.stats?.wins ?? '—' }}</p>
+					<h3>{{ t('dashboard.wins') }}</h3>
+					<p class="value">{{ game.wins > 0 ? game.wins : (stats.data?.stats?.wins ?? '—') }}</p>
 				</div>
 				<div class="stat-card">
-					<h3>High Score</h3>
-					<p class="value">{{ stats.data?.stats?.highScore ?? '—' }}</p>
+					<h3>{{ t('dashboard.highScore') }}</h3>
+					<p class="value">{{ game.highScore > 0 ? game.highScore : (stats.data?.stats?.highScore ?? '—') }}</p>
 				</div>
 			</div>
 		</div>
@@ -35,10 +35,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useFetch } from '#imports';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from '#imports';
+import { useGameStore } from '../../stores/game';
 // fetch current user profile (returns { authenticated, profile })
 const me = useFetch('/api/auth/me');
 const stats = useFetch('/api/user/stats');
@@ -46,6 +47,7 @@ const { t, locale, setLocale } = useI18n();
 const router = useRouter();
 
 const selectedDifficulty = ref('easy');
+const game = useGameStore();
 
 onMounted(() => {
 	try {
@@ -53,6 +55,16 @@ onMounted(() => {
 		if (saved) selectedDifficulty.value = saved;
 	} catch (e) {
 		// localStorage not available during SSR or blocked
+	}
+	try { game.load() } catch (e) {}
+	try { if (stats && stats.refresh) { stats.refresh() } } catch (e) {}
+});
+
+// When another part of the app reports the server-side stats were updated
+// (we set `game.lastServerUpdateAt` after a successful POST), refresh server stats
+watch(() => game.lastServerUpdateAt, (v, old) => {
+	if (v && v !== old) {
+		try { if (stats && stats.refresh) { stats.refresh() } } catch (e) {}
 	}
 });
 

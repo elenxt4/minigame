@@ -24,7 +24,10 @@
     "play": "Hangman",
     "playA": "Easy",
     "playB": "Medium",
-    "playC": "Hard"
+    "playC": "Hard",
+    "games": "Games played",
+    "wins": "Wins",
+    "highScore": "High Score"
   }
   ,
   "hangman": {
