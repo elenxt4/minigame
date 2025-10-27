@@ -4,30 +4,30 @@
 				<div class="header-row">
 					<h2>{{ t('dashboard.statistics') }}</h2>
 				</div>
-				<p class="player">{{ t('dashboard.player') }}: <strong>{{ me.data?.profile?.name || t('dashboard.guest') }}</strong></p>
-			<div class="stats">
-				<div class="stat-card">
-					<h3>{{ t('dashboard.games') }}</h3>
-					<p class="value">{{ game.gamesPlayed > 0 ? game.gamesPlayed : (stats.data?.stats?.gamesPlayed ?? '—') }}</p>
-				</div>
-				<div class="stat-card">
-					<h3>{{ t('dashboard.wins') }}</h3>
-					<p class="value">{{ game.wins > 0 ? game.wins : (stats.data?.stats?.wins ?? '—') }}</p>
-				</div>
-				<div class="stat-card">
-					<h3>{{ t('dashboard.highScore') }}</h3>
-					<p class="value">{{ game.highScore > 0 ? game.highScore : (stats.data?.stats?.highScore ?? '—') }}</p>
-				</div>
-			</div>
+				<p class="player">{{ t('dashboard.player') }}: <strong>{{ me.data?.profile?.name || me.data?.profile?.battletag || me.data?.profile?.sub || t('dashboard.guest') }}</strong></p>
+					<div class="stats">
+						<NuxtCard class="bgred">
+								<h3>{{ t('dashboard.games') }}</h3>
+							<p class="value">{{ game.gamesPlayed > 0 ? game.gamesPlayed : (stats.data?.stats?.gamesPlayed ?? '—') }}</p>
+						</NuxtCard>
+						<NuxtCard>
+								<h3>{{ t('dashboard.wins') }}</h3>
+							<p class="value">{{ game.wins > 0 ? game.wins : (stats.data?.stats?.wins ?? '—') }}</p>
+						</NuxtCard>
+						<NuxtCard>
+								<h3>{{ t('dashboard.highScore') }}</h3>
+							<p class="value">{{ game.highScore > 0 ? game.highScore : (stats.data?.stats?.highScore ?? '—') }}</p>
+						</NuxtCard>
+					</div>
 		</div>
 
 		<div class="right">
 			<h2>{{ t('dashboard.play') }}</h2>
 					<div class="actions">
 						<div class="diff-selector">
-							<button :class="['diff-btn', { active: selectedDifficulty === 'easy' }]" @click.prevent="play('easy')">{{ t('dashboard.playA') }}</button>
-							<button :class="['diff-btn', { active: selectedDifficulty === 'medium' }]" @click.prevent="play('medium')">{{ t('dashboard.playB') }}</button>
-							<button :class="['diff-btn', { active: selectedDifficulty === 'hard' }]" @click.prevent="play('hard')">{{ t('dashboard.playC') }}</button>
+							<NuxtButton :class="['diff-btn']" :variant="selectedDifficulty === 'easy' ? 'primary' : 'ghost'" @click.prevent="play('easy')">{{ t('dashboard.playA') }}</NuxtButton>
+							<NuxtButton :class="['diff-btn']" :variant="selectedDifficulty === 'medium' ? 'primary' : 'ghost'" @click.prevent="play('medium')">{{ t('dashboard.playB') }}</NuxtButton>
+							<NuxtButton :class="['diff-btn']" :variant="selectedDifficulty === 'hard' ? 'primary' : 'ghost'" @click.prevent="play('hard')">{{ t('dashboard.playC') }}</NuxtButton>
 						</div>
 					</div>
 		</div>
@@ -40,6 +40,8 @@ import { useFetch } from '#imports';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from '#imports';
 import { useGameStore } from '../../stores/game';
+import NuxtCard from '../components/NuxtCard.vue';
+import NuxtButton from '../components/NuxtButton.vue';
 // fetch current user profile (returns { authenticated, profile })
 const me = useFetch('/api/auth/me');
 const stats = useFetch('/api/user/stats');
@@ -86,6 +88,7 @@ const recordWin = async () => {
 };
 </script>
 
+
 <style scoped>
 .dashboard {
 	display: grid;
@@ -104,18 +107,7 @@ const recordWin = async () => {
 	gap: 1rem;
 	margin-top: 1rem;
 }
-.stat-card {
-	flex: 1;
-	background: linear-gradient(180deg,#f8fafc,#fff);
-	border-radius: 8px;
-	padding: 1rem;
-	text-align: center;
-}
-.stat-card .value {
-	font-size: 1.6rem;
-	font-weight: 700;
-	color: #2c3e50;
-}
+
 .actions {
 	display: flex;
 	flex-direction: column;
@@ -123,7 +115,7 @@ const recordWin = async () => {
 	margin-top: 1rem;
 }
 .diff-selector{ display:flex; flex-direction:column; gap:0.6rem }
-.diff-btn{ padding:0.8rem 1rem; border-radius:10px; border:none; cursor:pointer; font-weight:700; width:100%; text-align:center }
+.diff-btn{ padding:0.8rem 1rem; border-radius:10px; border:none; cursor:pointer; font-weight:700; width:100%; text-align:center; background: #f3f4f6; color: #111827 }
 .diff-btn.active{ background: linear-gradient(135deg,#667eea,#764ba2); color: #fff }
 .play-btn {
 	padding: 1rem 1.2rem;
@@ -144,4 +136,6 @@ const recordWin = async () => {
 @media (max-width: 800px) {
 	.dashboard { grid-template-columns: 1fr; }
 }
+
 </style>
+

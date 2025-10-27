@@ -1,39 +1,31 @@
 <template>
   <div class="hangman">
-    <div class="card">
-      <header class="card-header">
-        <h1>{{ t('hangman.title') }}</h1>
-        <div class="header-right">
-          <div class="lives">{{ t('hangman.lives') }}: <span class="badge">{{ lives }}</span></div>
+  <NuxtCard :win="gameWon" class="hangman-card" style="--ui-card-bg: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); --ui-card-color: #fff; --ui-card-shadow: 0 6px 30px rgba(2,6,23,0.6);">
+        <header class="card-header">
+          <h1>{{ t('hangman.title') }}</h1>
+          <div class="header-right">
+            <div class="lives">{{ t('hangman.lives') }}: <span class="badge">{{ lives }}</span></div>
+          </div>
+        </header>
+
+        <div class="word" aria-live="polite">
+          <span v-for="(ch, i) in displayWord" :key="i" class="ch">{{ ch }}</span>
         </div>
-      </header>
 
-      <div class="word" aria-live="polite">
-        <span v-for="(ch, i) in displayWord" :key="i" class="ch">{{ ch }}</span>
-      </div>
-
-      <div class="letters">
-        <button
-          v-for="l in alphabet"
-          :key="l"
-          :disabled="guessed.includes(l) || gameOver"
-          @click="guess(l)"
-          class="letter-btn"
-        >
-          {{ l }}
-        </button>
-      </div>
-
-      <div class="controls">
-        <p v-if="gameWon" class="result success">{{ t('hangman.won') }} <strong>{{ word }}</strong></p>
-        <p v-else-if="gameOver" class="result error">{{ t('hangman.lost') }} <strong>{{ word }}</strong></p>
-
-        <div class="buttons">
-          <button class="btn primary" @click="resetGame">{{ t('hangman.reset') }}</button>
-          <button class="btn ghost" @click="goBackToDashboard">{{ t('hangman.back') }}</button>
+        <div class="letters">
+          <NuxtButton v-for="l in alphabet" :key="l" :disabled="guessed.includes(l) || gameOver" class="letter-btn" size="sm" variant="ghost" @click="guess(l)">{{ l }}</NuxtButton>
         </div>
-      </div>
-    </div>
+
+        <div class="controls">
+          <p v-if="gameWon" class="result success">{{ t('hangman.won') }} <strong>{{ word }}</strong></p>
+          <p v-else-if="gameOver" class="result error">{{ t('hangman.lost') }} <strong>{{ word }}</strong></p>
+
+          <div class="buttons">
+            <NuxtButton class="btn" variant="primary" @click="resetGame">{{ t('hangman.reset') }}</NuxtButton>
+            <NuxtButton class="btn" variant="ghost" @click="goBackToDashboard">{{ t('hangman.back') }}</NuxtButton>
+          </div>
+        </div>
+  </NuxtCard>
   </div>
 </template>
 
@@ -42,6 +34,8 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from '#imports';
 import { useI18n } from 'vue-i18n';
 import { useGameStore } from '../../stores/game';
+import NuxtButton from '../components/NuxtButton.vue';
+import NuxtCard from '../components/NuxtCard.vue';
 
 // word lists are loaded from public/hangman/{easy|medium|hard}.json
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
