@@ -4,9 +4,9 @@
 				<div class="header-row">
 					<h2>{{ t('dashboard.statistics') }}</h2>
 				</div>
-				<p class="player">{{ t('dashboard.player') }}: <strong>{{ me.data?.profile?.name || me.data?.profile?.battletag || me.data?.profile?.sub || t('dashboard.guest') }}</strong></p>
+				<p class="player">{{ t('dashboard.player') }}: <strong>{{ me?.profile?.battletag|| t('dashboard.guest') }}</strong></p>
 					<div class="stats">
-						<NuxtCard class="bgred">
+						<NuxtCard>
 								<h3>{{ t('dashboard.games') }}</h3>
 							<p class="value">{{ game.gamesPlayed > 0 ? game.gamesPlayed : (stats.data?.stats?.gamesPlayed ?? '—') }}</p>
 						</NuxtCard>
@@ -43,8 +43,8 @@ import { useGameStore } from '../../stores/game';
 import NuxtCard from '../components/NuxtCard.vue';
 import NuxtButton from '../components/NuxtButton.vue';
 // fetch current user profile (returns { authenticated, profile })
-const me = useFetch('/api/auth/me');
-const stats = useFetch('/api/user/stats');
+const { data: me } = await useFetch('/api/auth/me');
+const stats = await useFetch('/api/user/stats');
 const { t, locale, setLocale } = useI18n();
 const router = useRouter();
 
