@@ -2,7 +2,10 @@
   <div>
     <Header />
     <main>
-      <NuxtPage />
+      <!-- page transition: fade + subtle slide for smoother navigation -->
+      <transition name="page" mode="out-in">
+        <NuxtPage />
+      </transition>
     </main>
     <Footer />
   </div>

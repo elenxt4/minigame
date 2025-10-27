@@ -1,0 +1,29 @@
+/* Global animation and transition helpers for the minigame */
+
+:root{
+  --accent: 102,126,234; /* used for focus rings etc (as RGB) */
+}
+
+/* Page transitions: gentle fade + vertical motion */
+.page-enter-active, .page-leave-active { transition: opacity .36s cubic-bezier(.2,.9,.3,1), transform .36s cubic-bezier(.2,.9,.3,1) }
+.page-enter-from { opacity: 0; transform: translateY(6px) }
+.page-enter-to { opacity: 1; transform: translateY(0) }
+.page-leave-from { opacity: 1; transform: translateY(0) }
+.page-leave-to { opacity: 0; transform: translateY(-6px) }
+
+/* Simple utility for small pop-in elements */
+.fade-pop-enter-active { transition: opacity .22s ease, transform .22s ease }
+.fade-pop-enter-from { opacity: 0; transform: translateY(6px) scale(.99) }
+.fade-pop-enter-to { opacity: 1; transform: translateY(0) scale(1) }
+
+/* Small helper to reduce motion for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .page-enter-active, .page-leave-active, .fade-pop-enter-active, .card-enter-active { transition: none !important }
+}
+
+/* Re-usable focus ring used by components */
+.focus-ring { box-shadow: 0 0 0 4px rgba(var(--accent),0.12); outline: none }
+
+/* A rhythmic highlight for small alerts or wins (if used) */
+.pulse-highlight { animation: pulse .9s ease both }
+@keyframes pulse { 0%{ transform: scale(1) } 50%{ transform: scale(1.03) } 100%{ transform: scale(1) } }

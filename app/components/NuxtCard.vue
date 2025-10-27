@@ -1,17 +1,20 @@
 <template>
-  <component v-if="resolvedName" :is="resolvedName" v-bind="mergedAttrs">
-    <template #header>
-      <slot name="header" />
-    </template>
-    <template #default>
-      <slot />
-    </template>
-  </component>
+  <!-- Wrap both possible render branches in a transition so the component and the fallback both animate -->
+  <transition name="card" mode="out-in">
+    <component v-if="resolvedName" :is="resolvedName" v-bind="mergedAttrs">
+      <template #header>
+        <slot name="header" />
+      </template>
+      <template #default>
+        <slot />
+      </template>
+    </component>
 
-  <div v-else :class="['nuxt-fallback-card', { 'nuxt-win': win }]">
-    <div v-if="$slots.header" class="nuxt-card-header"><slot name="header" /></div>
-    <div id="abcd"class="nuxt-card-body"><slot /></div>
-  </div>
+    <div v-else :class="['nuxt-fallback-card', { 'nuxt-win': win }]">
+      <div v-if="$slots.header" class="nuxt-card-header"><slot name="header" /></div>
+      <div id="abcd" class="nuxt-card-body"><slot /></div>
+    </div>
+  </transition>
 </template>
 
 <script setup lang="ts">
@@ -56,10 +59,19 @@ const mergedAttrs = computed(() => {
   min-height: 140px;
   border-radius: 12px;
   color: #0b1220; /* dark text for contrast */
+  transition: transform .18s ease, box-shadow .18s ease, opacity .22s ease;
 }
 .nuxt-fallback-card{ background: linear-gradient(180deg,red,blue)}
 .nuxt-card-header{ margin-bottom:0.6rem; font-weight:700; line-height:1.05 }
 .nuxt-card-body{ display:block; background: transparent; padding: 0.2rem; color: inherit }
 .nuxt-win{ animation: win-pulse 900ms ease both }
 @keyframes win-pulse{ 0%{ transform:scale(1); box-shadow:0 8px 24px rgba(34,197,94,0.06) } 50%{ transform:scale(1.03); box-shadow:0 18px 40px rgba(34,197,94,0.18) } 100%{ transform:scale(1); box-shadow:0 8px 24px rgba(34,197,94,0.06) } }
+
+/* Hover micro-interaction for cards */
+.nuxt-card-global:hover{ transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 40px rgba(14,30,60,0.12) }
+
+/* Transition classes for the <transition name="card"> wrapper */
+.card-enter-active, .card-leave-active { transition: opacity .28s cubic-bezier(.2,.9,.3,1), transform .28s cubic-bezier(.2,.9,.3,1) }
+.card-enter-from, .card-leave-to { opacity: 0; transform: translateY(8px) scale(.98) }
+.card-enter-to, .card-leave-from { opacity: 1; transform: translateY(0) scale(1) }
 </style>

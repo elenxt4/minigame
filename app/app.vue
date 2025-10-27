@@ -12,6 +12,8 @@
 <script setup>
 import Header from './components/header.vue';
 import Footer from './components/footer.vue';
+// Global animations & helpers (relative import so Vite resolves correctly from the app dir)
+import './assets/css/main.css';
 </script>
 
 <style>
