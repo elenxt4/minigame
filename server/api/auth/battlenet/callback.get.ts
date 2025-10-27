@@ -76,14 +76,31 @@ export default defineEventHandler(async (event) => {
   }
   const accessToken = tokenJson.access_token as string;
   const expiresIn = tokenJson.expires_in as number | undefined;
-
-    // Store token in httpOnly cookie
-    setCookie(event, 'battlenet_token', accessToken, {
+  // Store token in httpOnly cookie
+  setCookie(event, 'battlenet_token', accessToken, {
     httpOnly: true,
     secure: (globalThis as any).process?.env?.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: expiresIn ?? 3600
   });
+
+  // Development-only: log token JSON and set a non-httpOnly debug cookie so you can inspect it in the browser
+  try {
+    const nodeEnv = (globalThis as any).process?.env?.NODE_ENV || 'development';
+    // eslint-disable-next-line no-console
+    console.log('[api/auth/battlenet/callback] token response:', JSON.stringify(tokenJson));
+    if (nodeEnv !== 'production') {
+      // Add a visible cookie for debugging (remove later) so DevTools shows the token value
+      setCookie(event, 'battlenet_token_debug', accessToken, {
+        httpOnly: false,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: expiresIn ?? 3600
+      });
+    }
+  } catch (e) {
+    // ignore logging errors
+  }
     return sendRedirect(event, '/dashboard');
   } catch (err: any) {
     // Log full stack to help debug stream/premature-close issues

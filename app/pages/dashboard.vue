@@ -104,8 +104,10 @@ const recordWin = async () => {
 }
 .stats {
 	display: flex;
-	gap: 1rem;
-	margin-top: 1rem;
+	gap: 2.5rem; /* larger gap so cards breathe */
+	margin-top: 1.5rem;
+	justify-content: center; /* center the stats row */
+	align-items: center;
 }
 
 .actions {
