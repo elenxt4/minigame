@@ -161,6 +161,22 @@ watch(gameWon, async (v) => {
   }
 });
 
+// When the player loses (gameOver but not gameWon), record the loss and notify server
+watch(gameOver, async (v) => {
+  if (v && !gameWon.value) {
+    try { if (game.recordLoss) { game.recordLoss() } else { game.gamesPlayed += 1; game.save() } } catch (e) {}
+    try {
+      await $fetch('/api/user/stats', {
+        method: 'POST',
+        body: { increment: { gamesPlayed: 1 } }
+      })
+      try { game.markServerUpdated() } catch (e) { /* ignore */ }
+    } catch (e) {
+      // ignore network errors
+    }
+  }
+});
+
 </script>
 
 <style scoped>

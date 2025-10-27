@@ -28,6 +28,11 @@ export const useGameStore = defineStore('game', {
       }
       this.save()
     },
+    recordLoss() {
+      // Called when the player loses a game
+      this.gamesPlayed += 1
+      this.save()
+    },
     // mark that server stats were updated (used to notify dashboard to refresh)
     markServerUpdated() {
       this.lastServerUpdateAt = Date.now()
