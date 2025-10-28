@@ -1,31 +1,48 @@
 <template>
   <div class="hangman">
-  <NuxtCard :win="gameWon" class="hangman-card" style="--ui-card-bg: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); --ui-card-color: #fff; --ui-card-shadow: 0 6px 30px rgba(2,6,23,0.6);">
-        <header class="card-header">
-          <h1>{{ t('hangman.title') }}</h1>
-          <div class="header-right">
-            <div class="lives">{{ t('hangman.lives') }}: <span class="badge">{{ lives }}</span></div>
+    <NuxtCard :win="gameWon" class="hangman-card" style="--ui-card-bg: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); --ui-card-color: #fff; --ui-card-shadow: 0 6px 30px rgba(2,6,23,0.6);">
+      <header class="card-header">
+        <h1>{{ t('hangman.title') }}</h1>
+        <div class="header-right">
+          <div class="stats">
+            <div class="score">{{ t('hangman.score') }}: <strong>{{ game.score }}</strong></div>
+            <div class="high">{{ t('hangman.highScore') }}: <strong>{{ game.highScore }}</strong></div>
           </div>
-        </header>
-
-        <div class="word" aria-live="polite">
-          <span v-for="(ch, i) in displayWord" :key="i" class="ch">{{ ch }}</span>
+          <div class="lives">{{ t('hangman.lives') }}: <span class="badge">{{ lives }}</span></div>
         </div>
+      </header>
 
-        <div class="letters">
-          <NuxtButton v-for="l in alphabet" :key="l" :disabled="guessed.includes(l) || gameOver" class="letter-btn" size="sm" variant="ghost" @click="guess(l)">{{ l }}</NuxtButton>
+      <!-- difficulty selector -->
+      <div class="difficulty">
+        <label>{{ t('hangman.difficulty') }}:</label>
+        <div class="diff-buttons">
+          <button v-for="d in ['easy','medium','hard']" :key="d" class="diff-btn" :aria-pressed="difficulty===d" :class="{active: difficulty===d}" @click="changeDifficulty(d)">{{ d }}</button>
         </div>
+      </div>
 
-        <div class="controls">
-          <p v-if="gameWon" class="result success">{{ t('hangman.won') }} <strong>{{ word }}</strong></p>
-          <p v-else-if="gameOver" class="result error">{{ t('hangman.lost') }} <strong>{{ word }}</strong></p>
+      <div class="word" aria-live="polite">
+        <span v-for="(ch, i) in displayWord" :key="i" :class="['ch', { revealed: ch !== '_' }]">{{ ch }}</span>
+      </div>
 
-          <div class="buttons">
-            <NuxtButton class="btn" variant="primary" @click="resetGame">{{ t('hangman.reset') }}</NuxtButton>
-            <NuxtButton class="btn" variant="ghost" @click="goBackToDashboard">{{ t('hangman.back') }}</NuxtButton>
-          </div>
+      <div class="letters">
+        <NuxtButton v-for="l in alphabet" :key="l" :disabled="guessed.includes(l) || gameOver" size="sm" variant="ghost" class="letter-btn"
+          :class="{
+            'guessed-correct': letterState[l].used && letterState[l].correct,
+            'guessed-wrong': letterState[l].used && !letterState[l].correct
+          }"
+          @click="guess(l)">{{ l }}</NuxtButton>
+      </div>
+
+      <div class="controls">
+        <p v-if="gameWon" class="result success">{{ t('hangman.won') }} <strong>{{ word }}</strong></p>
+        <p v-else-if="gameOver" class="result error">{{ t('hangman.lost') }} <strong>{{ word }}</strong></p>
+
+        <div class="buttons">
+          <NuxtButton class="btn" variant="primary" @click="resetGame">{{ t('hangman.reset') }}</NuxtButton>
+          <NuxtButton class="btn" variant="ghost" @click="goBackToDashboard">{{ t('hangman.back') }}</NuxtButton>
         </div>
-  </NuxtCard>
+      </div>
+    </NuxtCard>
   </div>
 </template>
 
@@ -36,12 +53,20 @@ import { useI18n } from 'vue-i18n';
 import { useGameStore } from '../../stores/game';
 import NuxtButton from '../components/NuxtButton.vue';
 import NuxtCard from '../components/NuxtCard.vue';
+// use a relative import so Vite resolves this file from the app/pages directory
+import { useSound } from '../../composables/useSound';
 
 // word lists are loaded from public/hangman/{easy|medium|hard}.json
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
 const difficulty = ref('easy');
 const wordsList = ref([]);
+
+const difficultyConfig = {
+  easy: { lives: 7, multiplier: 1 },
+  medium: { lives: 5, multiplier: 1.5 },
+  hard: { lives: 3, multiplier: 2 }
+}
 
 const loadWords = async (level) => {
   // prefer locale-specific lists: /hangman/{lang}/{level}.json
@@ -75,6 +100,18 @@ const pickWord = () => {
 const word = ref('');
 const lives = ref(5);
 const guessed = ref([]);
+const sessionPoints = ref(0)
+
+// visual state helper: map letter -> { used: boolean, correct: boolean }
+const letterState = computed(() => {
+  const m = {}
+  for (const ch of alphabet) {
+    const used = guessed.value.includes(ch)
+    const correct = used && word.value.includes(ch)
+    m[ch] = { used, correct }
+  }
+  return m
+})
 
 const displayWord = computed(() => {
   return word.value.split('').map(ch => (guessed.value.includes(ch) ? ch : '_'));
@@ -83,15 +120,32 @@ const displayWord = computed(() => {
 const gameWon = computed(() => !displayWord.value.includes('_'));
 const gameOver = computed(() => lives.value <= 0 || gameWon.value);
 
+const { playError, playClick, playSuccess, playApplause } = useSound()
+
 const guess = (letter) => {
   if (gameOver.value || guessed.value.includes(letter)) return;
   guessed.value.push(letter);
-  if (!word.value.includes(letter)) {
+  // small click feedback
+  try { playClick() } catch (e) {}
+
+  if (word.value.includes(letter)) {
+    // award small points per correct letter
+    const pts = Math.round(10 * difficultyConfig[difficulty.value].multiplier)
+    sessionPoints.value += pts
+    // gentle success tone
+    try { playSuccess() } catch (e) {}
+  } else {
+    // wrong guess: lose a life and play error sound
     lives.value -= 1;
+    try { playError() } catch (e) {}
   }
 };
 
-const resetGame = () => {
+const resetGame = (keepDifficulty = false) => {
+  // set starting lives based on difficulty
+  lives.value = difficultyConfig[difficulty.value]?.lives ?? 5
+  sessionPoints.value = 0
+  guessed.value = [];
   // ensure words are loaded for current difficulty
   if (!wordsList.value || wordsList.value.length === 0) {
     loadWords(difficulty.value).then(() => {
@@ -100,8 +154,6 @@ const resetGame = () => {
   } else {
     word.value = pickWord();
   }
-  lives.value = 5;
-  guessed.value = [];
 };
 
 const router = useRouter();
@@ -112,7 +164,13 @@ const setLang = (l) => { locale.value = l };
 
 const game = useGameStore();
 
-
+const changeDifficulty = async (d) => {
+  if (difficulty.value === d) return;
+  difficulty.value = d
+  try { if (typeof window !== 'undefined') localStorage.setItem('hangman:difficulty', d) } catch (e) {}
+  await loadWords(d)
+  resetGame()
+}
 
 onMounted(async () => {
   try {
@@ -125,6 +183,8 @@ onMounted(async () => {
   // load persisted game stats
   try { game.load() } catch (e) {}
   // pick a fresh word after the list is loaded
+  // set lives based on difficulty
+  lives.value = difficultyConfig[difficulty.value]?.lives ?? 5
   word.value = pickWord();
 });
 
@@ -142,9 +202,10 @@ watch(locale, async (newLocale, oldLocale) => {
 // When we win, add points and record win in the store
 watch(gameWon, async (v) => {
   if (v) {
-    const points = (lives.value || 0) * 100
+    const points = (lives.value || 0) * 100 + sessionPoints.value
     try { game.addScore(points) } catch (e) {}
     try { game.recordWin() } catch (e) {}
+    try { playApplause() } catch (e) {}
 
     // Also report to server-side stats endpoint (best-effort)
     try {
@@ -224,11 +285,28 @@ watch(gameOver, async (v) => {
 
 .word{ margin:1.4rem 0; display:flex; justify-content:center; gap:0.6rem; flex-wrap:wrap }
 .ch{ font-size:2.2rem; width:2rem; height:2.6rem; display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.03); border-radius:6px }
+.ch.revealed{ background: linear-gradient(90deg,#667eea,#764ba2); color:#fff; transform:translateY(-4px); box-shadow:0 12px 26px rgba(12,8,30,0.45)}
 
 .letters{ display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:center; margin-top:1rem }
 .letter-btn{ padding:0.55rem 0.65rem; border-radius:8px; border:1px solid rgba(255,255,255,0.06); cursor:pointer; background:transparent; color:var(--muted); min-width:40px; font-weight:600; transition:all .12s ease }
+.letter-btn.guessed-correct{ background:linear-gradient(90deg,#16a34a,#34d399); color:#062617; border-color:rgba(16,185,129,0.12) }
+.letter-btn.guessed-wrong{ background:linear-gradient(90deg,#ef4444,#f97316); color:#fff; border-color:rgba(220,38,38,0.12) }
 .letter-btn:hover{ transform:translateY(-2px); color:#fff; box-shadow: 0 6px 18px rgba(12,8,30,0.45) }
 .letter-btn:disabled{ opacity:0.35; cursor:not-allowed; transform:none; box-shadow:none }
+
+/* difficulty selector */
+.difficulty{ display:flex; align-items:center; gap:0.6rem; justify-content:center; margin-top:0.6rem }
+.diff-buttons{ display:flex; gap:0.4rem }
+.diff-btn{ padding:0.35rem 0.6rem; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); cursor:pointer }
+.diff-btn.active, .diff-btn[aria-pressed="true"]{ background:rgba(255,255,255,0.06); color:#fff }
+
+/* small stats in header */
+.stats{ display:flex; gap:0.6rem; align-items:center; margin-right:0.8rem }
+.stats .score, .stats .high{ font-size:0.95rem; color:var(--muted) }
+
+/* progress bar */
+.progress-wrap{ width:120px; height:8px; background:rgba(255,255,255,0.04); border-radius:999px; overflow:hidden }
+.progress-fill{ height:100%; background:linear-gradient(90deg,var(--accent),var(--accent-2)); width:40% }
 
 .controls{ margin-top:1.6rem }
 .result{ font-size:1.05rem; margin-bottom:0.8rem }

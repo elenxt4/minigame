@@ -46,6 +46,8 @@ export const useGameStore = defineStore('game', {
             this.highScore = json.highScore ?? this.highScore
             this.wins = json.wins ?? this.wins
             this.gamesPlayed = json.gamesPlayed ?? this.gamesPlayed
+            // keep optional persisted lastScore for UX (not used for highscore logic)
+            if (typeof json.lastScore === 'number') this.score = json.lastScore
           }
         }
       } catch (e) {
@@ -55,7 +57,7 @@ export const useGameStore = defineStore('game', {
     save() {
       try {
         if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.setItem('minigame:game', JSON.stringify({ highScore: this.highScore, wins: this.wins, gamesPlayed: this.gamesPlayed }))
+          localStorage.setItem('minigame:game', JSON.stringify({ highScore: this.highScore, wins: this.wins, gamesPlayed: this.gamesPlayed, lastScore: this.score }))
         }
       } catch (e) {
         // ignore
