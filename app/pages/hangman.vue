@@ -48,24 +48,18 @@ import NuxtCard from '../components/NuxtCard.vue';
 // use a relative import so Vite resolves this file from the app/pages directory
 import { useSound } from '../../composables/useSound';
 
-// word lists are loaded from public/hangman/{easy|medium|hard}.json
+// word lists are loaded from public/hangman/easy.json
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
-const difficulty = ref('easy');
 const wordsList = ref([]);
+const STARTING_LIVES = 6;
 
-const difficultyConfig = {
-  easy: { lives: 7, multiplier: 1 },
-  medium: { lives: 5, multiplier: 1.5 },
-  hard: { lives: 3, multiplier: 2 }
-}
-
-const loadWords = async (level) => {
-  // prefer locale-specific lists: /hangman/{lang}/{level}.json
+const loadWords = async () => {
+  // prefer locale-specific lists: /hangman/{lang}/easy.json
   const lang = (locale && locale.value) ? locale.value.split('-')[0] : 'en';
   const paths = [
-    `/hangman/${lang}/${level}.json`,
-    `/hangman/${level}.json` // fallback to old location
+    `/hangman/${lang}/easy.json`,
+    `/hangman/easy.json` // fallback to old location
   ];
 
   for (const p of paths) {
@@ -90,7 +84,7 @@ const pickWord = () => {
 
 // start empty so we don't show the default before the JSON is loaded
 const word = ref('');
-const lives = ref(5);
+const lives = ref(STARTING_LIVES);
 const guessed = ref([]);
 const sessionPoints = ref(0)
 
@@ -122,7 +116,7 @@ const guess = (letter) => {
 
   if (word.value.includes(letter)) {
     // award small points per correct letter
-    const pts = Math.round(10 * difficultyConfig[difficulty.value].multiplier)
+    const pts = 10
     sessionPoints.value += pts
     // gentle success tone
     try { playSuccess() } catch (e) {}
@@ -137,14 +131,14 @@ const guess = (letter) => {
   }
 };
 
-const resetGame = (keepDifficulty = false) => {
-  // set starting lives based on difficulty
-  lives.value = difficultyConfig[difficulty.value]?.lives ?? 5
+const resetGame = () => {
+  // reset to starting lives
+  lives.value = STARTING_LIVES
   sessionPoints.value = 0
   guessed.value = [];
-  // ensure words are loaded for current difficulty
+  // ensure words are loaded
   if (!wordsList.value || wordsList.value.length === 0) {
-    loadWords(difficulty.value).then(() => {
+    loadWords().then(() => {
       word.value = pickWord();
     });
   } else {
@@ -160,35 +154,20 @@ const setLang = (l) => { locale.value = l };
 
 const game = useGameStore();
 
-const changeDifficulty = async (d) => {
-  if (difficulty.value === d) return;
-  difficulty.value = d
-  try { if (typeof window !== 'undefined') localStorage.setItem('hangman:difficulty', d) } catch (e) {}
-  await loadWords(d)
-  resetGame()
-}
-
 onMounted(async () => {
-  try {
-    const saved = typeof window !== 'undefined' ? localStorage.getItem('hangman:difficulty') : null;
-    if (saved) difficulty.value = saved;
-  } catch (e) {
-    // ignore
-  }
-  await loadWords(difficulty.value);
+  await loadWords();
   // load persisted game stats
   try { game.load() } catch (e) {}
   // pick a fresh word after the list is loaded
-  // set lives based on difficulty
-  lives.value = difficultyConfig[difficulty.value]?.lives ?? 5
+  lives.value = STARTING_LIVES
   word.value = pickWord();
 });
 
 // when the language changes, reload the appropriate word list (client-only)
 watch(locale, async (newLocale, oldLocale) => {
   try {
-    // reload words for the current difficulty and pick a new word
-    await loadWords(difficulty.value);
+    // reload words and pick a new word
+    await loadWords();
     word.value = pickWord();
   } catch (e) {
     // ignore
@@ -199,8 +178,10 @@ watch(locale, async (newLocale, oldLocale) => {
 watch(gameWon, async (v) => {
   if (v) {
     const points = (lives.value || 0) * 100 + sessionPoints.value
-  try { game.addScore(points) } catch (e) {}
-  try { game.recordWin() } catch (e) {}
+    try { 
+      game.recordGameResult('hangman', { won: true, points })
+      game.hangman.currentScore = points
+    } catch (e) {}
 
     // Also report to server-side stats endpoint (best-effort)
     try {
@@ -208,8 +189,6 @@ watch(gameWon, async (v) => {
         method: 'POST',
         body: { increment: { gamesPlayed: 1, wins: 1, highScore: game.highScore } }
       })
-      // notify local store that server-side stats were updated so other pages (dashboard)
-      // can react and refresh their server-backed data immediately
       try { game.markServerUpdated() } catch (e) { /* ignore */ }
     } catch (e) {
       // ignore network errors
@@ -220,7 +199,10 @@ watch(gameWon, async (v) => {
 // When the player loses (gameOver but not gameWon), record the loss and notify server
 watch(gameOver, async (v) => {
   if (v && !gameWon.value) {
-    try { if (game.recordLoss) { game.recordLoss() } else { game.gamesPlayed += 1; game.save() } } catch (e) {}
+    try { 
+      game.recordGameResult('hangman', { won: false, points: 0 })
+      game.hangman.currentScore = 0
+    } catch (e) {}
     try {
       await $fetch('/api/user/stats', {
         method: 'POST',
@@ -290,12 +272,6 @@ watch(gameOver, async (v) => {
 .letter-btn.guessed-wrong{ background:linear-gradient(90deg,#ef4444,#f97316); color:#fff; border-color:rgba(220,38,38,0.12) }
 .letter-btn:hover{ transform:translateY(-2px); color:#fff; box-shadow: 0 6px 18px rgba(12,8,30,0.45) }
 .letter-btn:disabled{ opacity:0.35; cursor:not-allowed; transform:none; box-shadow:none }
-
-/* difficulty selector */
-.difficulty{ display:flex; align-items:center; gap:0.6rem; justify-content:center; margin-top:0.6rem }
-.diff-buttons{ display:flex; gap:0.4rem }
-.diff-btn{ padding:0.35rem 0.6rem; border-radius:8px; background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); cursor:pointer }
-.diff-btn.active, .diff-btn[aria-pressed="true"]{ background:rgba(255,255,255,0.06); color:#fff }
 
 /* small stats in header */
 .stats{ display:flex; gap:0.6rem; align-items:center; margin-right:0.8rem }

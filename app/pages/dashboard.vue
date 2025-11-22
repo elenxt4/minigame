@@ -1,37 +1,82 @@
 <template>
 		<div class="dashboard">
-			<div class="left">
+			<div class="stats-section">
 				<div class="header-row">
 					<h2>{{ t('dashboard.statistics') }}</h2>
 				</div>
 				<p class="player">{{ t('dashboard.player') }}: <strong>{{ me?.profile?.battletag|| t('dashboard.guest') }}</strong></p>
+				
+				<!-- Global Stats -->
+				<div class="stats-category">
+					<h3 class="category-title">{{ t('dashboard.globalStats') }}</h3>
 					<div class="stats">
 						<NuxtCard>
-								<h3>{{ t('dashboard.games') }}</h3>
+							<h3>{{ t('dashboard.games') }}</h3>
 							<p class="value">{{ game.gamesPlayed > 0 ? game.gamesPlayed : (stats.data?.stats?.gamesPlayed ?? '—') }}</p>
 						</NuxtCard>
 						<NuxtCard>
-								<h3>{{ t('dashboard.wins') }}</h3>
+							<h3>{{ t('dashboard.wins') }}</h3>
 							<p class="value">{{ game.wins > 0 ? game.wins : (stats.data?.stats?.wins ?? '—') }}</p>
 						</NuxtCard>
 						<NuxtCard>
-								<h3>{{ t('dashboard.highScore') }}</h3>
+							<h3>{{ t('dashboard.highScore') }}</h3>
 							<p class="value">{{ game.highScore > 0 ? game.highScore : (stats.data?.stats?.highScore ?? '—') }}</p>
 						</NuxtCard>
 					</div>
-		</div>
+				</div>
 
-		<div class="right">
-			<h2>{{ t('dashboard.play') }}</h2>
-					<div class="actions">
-						<div class="diff-selector">
-							<NuxtButton :class="['diff-btn']" :variant="selectedDifficulty === 'easy' ? 'primary' : 'ghost'" @click.prevent="play('easy')">{{ t('dashboard.playA') }}</NuxtButton>
-							<NuxtButton :class="['diff-btn']" :variant="selectedDifficulty === 'medium' ? 'primary' : 'ghost'" @click.prevent="play('medium')">{{ t('dashboard.playB') }}</NuxtButton>
-							<NuxtButton :class="['diff-btn']" :variant="selectedDifficulty === 'hard' ? 'primary' : 'ghost'" @click.prevent="play('hard')">{{ t('dashboard.playC') }}</NuxtButton>
+				<!-- Individual Game Stats -->
+				<div class="stats-category">
+					<h3 class="category-title">{{ t('dashboard.gameStats') }}</h3>
+					
+					<!-- Hangman Stats -->
+					<div class="game-stats-item">
+						<h4>🎯 {{ t('dashboard.playHangman') }}</h4>
+						<div class="game-stats-grid">
+							<div class="stat"><span class="label">{{ t('dashboard.games') }}:</span> <span class="val">{{ game.hangman.gamesPlayed }}</span></div>
+							<div class="stat"><span class="label">{{ t('dashboard.wins') }}:</span> <span class="val">{{ game.hangman.wins }}</span></div>
+							<div class="stat"><span class="label">{{ t('dashboard.highScore') }}:</span> <span class="val">{{ game.hangman.highScore }}</span></div>
 						</div>
 					</div>
+
+					<!-- Guess Number Stats -->
+					<div class="game-stats-item">
+						<h4>🔢 {{ t('dashboard.playGuessNumber') }}</h4>
+						<div class="game-stats-grid">
+							<div class="stat"><span class="label">{{ t('dashboard.games') }}:</span> <span class="val">{{ game.guessNumber.gamesPlayed }}</span></div>
+							<div class="stat"><span class="label">{{ t('dashboard.wins') }}:</span> <span class="val">{{ game.guessNumber.wins }}</span></div>
+							<div class="stat"><span class="label">{{ t('dashboard.highScore') }}:</span> <span class="val">{{ game.guessNumber.highScore }}</span></div>
+						</div>
+					</div>
+
+					<!-- RPS Stats -->
+					<div class="game-stats-item">
+						<h4>🪨📄✂️ {{ t('dashboard.playRPS') }}</h4>
+						<div class="game-stats-grid">
+							<div class="stat"><span class="label">{{ t('dashboard.games') }}:</span> <span class="val">{{ game.rps.gamesPlayed }}</span></div>
+							<div class="stat"><span class="label">{{ t('dashboard.wins') }}:</span> <span class="val">{{ game.rps.wins }}</span></div>
+							<div class="stat"><span class="label">{{ t('dashboard.losses') }}:</span> <span class="val">{{ game.rps.losses }}</span></div>
+							<div class="stat"><span class="label">{{ t('dashboard.ties') }}:</span> <span class="val">{{ game.rps.ties }}</span></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="play-section">
+				<h2>{{ t('dashboard.play') }}</h2>
+				<div class="actions">
+					<NuxtButton variant="primary" @click.prevent="playGame('hangman')">
+						🎯 {{ t('dashboard.playHangman') }}
+					</NuxtButton>
+					<NuxtButton variant="primary" @click.prevent="playGame('guessnumber')">
+						🔢 {{ t('dashboard.playGuessNumber') }}
+					</NuxtButton>
+					<NuxtButton variant="primary" @click.prevent="playGame('rockpaperscissors')">
+						✂️ {{ t('dashboard.playRPS') }}
+					</NuxtButton>
+				</div>
+			</div>
 		</div>
-	</div>
 </template>
 
 <script setup>
@@ -48,14 +93,9 @@ const stats = await useFetch('/api/user/stats');
 const { t, locale, setLocale } = useI18n();
 const router = useRouter();
 
-const selectedDifficulty = ref('easy');
 const game = useGameStore();
 
 onMounted(() => {
-	try {
-		const saved = localStorage.getItem('hangman:difficulty');
-		if (saved) selectedDifficulty.value = saved;
-	} catch (e) { /* ignore */ }
 
 	// derive user id from profile (if authenticated) and hydrate per-user stats
 	try {
@@ -81,16 +121,8 @@ watch(() => game.lastServerUpdateAt, (v, old) => {
 	}
 });
 
-const play = (level) => {
-	selectedDifficulty.value = level;
-	try {
-		if (typeof window !== 'undefined' && window.localStorage) {
-			localStorage.setItem('hangman:difficulty', level);
-		}
-	} catch (e) {
-		// ignore localStorage errors
-	}
-	router.push('/hangman');
+const playGame = (gameName) => {
+	router.push(`/${gameName}`);
 };
 
 const recordWin = async () => {
@@ -107,18 +139,70 @@ const recordWin = async () => {
 	gap: 2rem;
 	padding: 2rem;
 }
-.left, .right {
+
+.stats-section, .play-section {
 	background: #fff;
 	border-radius: 12px;
 	padding: 1.5rem;
 	box-shadow: 0 8px 24px rgba(0,0,0,0.06);
 }
+
+.stats-category {
+	margin-top: 2rem;
+}
+
+.category-title {
+	font-size: 1.2rem;
+	color: #667eea;
+	margin-bottom: 1rem;
+	font-weight: 600;
+}
+
 .stats {
 	display: flex;
-	gap: 2.5rem; /* larger gap so cards breathe */
+	gap: 2.5rem;
 	margin-top: 1.5rem;
-	justify-content: center; /* center the stats row */
+	justify-content: center;
 	align-items: center;
+	flex-wrap: wrap;
+}
+
+.game-stats-item {
+	background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+	border-radius: 12px;
+	padding: 1rem 1.5rem;
+	margin-bottom: 1rem;
+}
+
+.game-stats-item h4 {
+	margin: 0 0 0.75rem 0;
+	font-size: 1.1rem;
+	color: #2d3748;
+}
+
+.game-stats-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	gap: 0.75rem;
+}
+
+.stat {
+	display: flex;
+	justify-content: space-between;
+	padding: 0.5rem;
+	background: rgba(255, 255, 255, 0.7);
+	border-radius: 6px;
+	font-size: 0.9rem;
+}
+
+.stat .label {
+	color: #4a5568;
+	font-weight: 500;
+}
+
+.stat .val {
+	color: #1a202c;
+	font-weight: 700;
 }
 
 .actions {
@@ -127,28 +211,19 @@ const recordWin = async () => {
 	gap: 1rem;
 	margin-top: 1rem;
 }
-.diff-selector{ display:flex; flex-direction:column; gap:0.6rem }
-.diff-btn{ padding:0.8rem 1rem; border-radius:10px; border:none; cursor:pointer; font-weight:700; width:100%; text-align:center; background: #f3f4f6; color: #111827 }
-.diff-btn.active{ background: linear-gradient(135deg,#667eea,#764ba2); color: #fff }
-.play-btn {
-	padding: 1rem 1.2rem;
-	border-radius: 10px;
-	border: none;
-	cursor: pointer;
-	font-weight: 700;
-}
-.play-btn.primary {
-	background: linear-gradient(135deg,#667eea,#764ba2);
-	color: white;
-}
-.play-btn:not(.primary) {
-	background: #f3f4f6;
-	color: #111827;
-}
 
 @media (max-width: 800px) {
-	.dashboard { grid-template-columns: 1fr; }
+	.dashboard { 
+		grid-template-columns: 1fr; 
+	}
+	
+	.stats {
+		gap: 1rem;
+	}
+	
+	.game-stats-grid {
+		grid-template-columns: 1fr;
+	}
 }
-
 </style>
 
