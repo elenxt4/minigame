@@ -134,6 +134,10 @@ const guess = (letter) => {
     sessionPoints.value += pts
     // gentle success tone
     try { playSuccess() } catch (e) {}
+    // if this correct guess completed the word, play applause immediately for better UX
+    if (gameWon.value) {
+      try { playApplause() } catch (e) {}
+    }
   } else {
     // wrong guess: lose a life and play error sound
     lives.value -= 1;
@@ -203,9 +207,8 @@ watch(locale, async (newLocale, oldLocale) => {
 watch(gameWon, async (v) => {
   if (v) {
     const points = (lives.value || 0) * 100 + sessionPoints.value
-    try { game.addScore(points) } catch (e) {}
-    try { game.recordWin() } catch (e) {}
-    try { playApplause() } catch (e) {}
+  try { game.addScore(points) } catch (e) {}
+  try { game.recordWin() } catch (e) {}
 
     // Also report to server-side stats endpoint (best-effort)
     try {
@@ -235,6 +238,8 @@ watch(gameOver, async (v) => {
     } catch (e) {
       // ignore network errors
     }
+    // play a losing/error sound so the player gets audible feedback on loss
+    try { playError() } catch (e) {}
   }
 });
 
