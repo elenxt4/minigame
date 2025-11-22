@@ -7,7 +7,9 @@ export const useGameStore = defineStore('game', {
     wins: 0,
       gamesPlayed: 0,
       // timestamp (ms) updated when server-side stats change so UI can refresh
-      lastServerUpdateAt: 0
+      lastServerUpdateAt: 0,
+      // tracked current user id (battlenet id / battletag) to isolate local storage per user
+      currentUserId: null as string | null
   }),
   actions: {
     addScore(points: number) {
@@ -37,10 +39,26 @@ export const useGameStore = defineStore('game', {
     markServerUpdated() {
       this.lastServerUpdateAt = Date.now()
     },
+    // Set/Change current user and hydrate from local storage + optionally merge server stats
+    setUser(userId: string | null, serverStats?: { gamesPlayed: number; wins: number; highScore: number }) {
+      this.currentUserId = userId || 'guest'
+      // load local stats for this user id
+      this.load()
+      if (serverStats) {
+        // prefer server authoritative counts, but keep local highScore if higher
+        this.gamesPlayed = serverStats.gamesPlayed
+        this.wins = serverStats.wins
+        if (serverStats.highScore > this.highScore) {
+          this.highScore = serverStats.highScore
+        }
+        this.save()
+      }
+    },
     load() {
       try {
         if (typeof window !== 'undefined' && window.localStorage) {
-          const raw = localStorage.getItem('minigame:game')
+          const key = `minigame:game:${this.currentUserId || 'guest'}`
+          const raw = localStorage.getItem(key)
           if (raw) {
             const json = JSON.parse(raw)
             this.highScore = json.highScore ?? this.highScore
@@ -57,7 +75,8 @@ export const useGameStore = defineStore('game', {
     save() {
       try {
         if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.setItem('minigame:game', JSON.stringify({ highScore: this.highScore, wins: this.wins, gamesPlayed: this.gamesPlayed, lastScore: this.score }))
+          const key = `minigame:game:${this.currentUserId || 'guest'}`
+          localStorage.setItem(key, JSON.stringify({ highScore: this.highScore, wins: this.wins, gamesPlayed: this.gamesPlayed, lastScore: this.score }))
         }
       } catch (e) {
         // ignore

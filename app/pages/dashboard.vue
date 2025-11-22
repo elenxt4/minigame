@@ -55,10 +55,16 @@ onMounted(() => {
 	try {
 		const saved = localStorage.getItem('hangman:difficulty');
 		if (saved) selectedDifficulty.value = saved;
-	} catch (e) {
-		// localStorage not available during SSR or blocked
-	}
-	try { game.load() } catch (e) {}
+	} catch (e) { /* ignore */ }
+
+	// derive user id from profile (if authenticated) and hydrate per-user stats
+	try {
+		const profile = me.value?.profile
+		const userId = profile ? (profile.id || profile.sub || profile.user_id || profile.battletag || null) : null
+		const serverStats = stats.data.value?.stats
+		game.setUser(userId, serverStats)
+	} catch (e) { /* ignore */ }
+
 	try { if (stats && stats.refresh) { stats.refresh() } } catch (e) {}
 });
 
@@ -67,6 +73,11 @@ onMounted(() => {
 watch(() => game.lastServerUpdateAt, (v, old) => {
 	if (v && v !== old) {
 		try { if (stats && stats.refresh) { stats.refresh() } } catch (e) {}
+		// merge refreshed server stats back into the current user's local store
+		try {
+			const serverStats = stats.data.value?.stats
+			if (serverStats) game.setUser(game.currentUserId, serverStats)
+		} catch (e) { /* ignore */ }
 	}
 });
 

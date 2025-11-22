@@ -36,6 +36,8 @@
     "won": "¡Has ganado! La palabra era",
     "lost": "Juego terminado. La palabra era",
     "reset": "Reiniciar",
-    "back": "Volver al dashboard"
+    "back": "Volver al dashboard",
+    "score": "Puntuación",
+    "highScore": "Puntuación más alta"
   }
 }

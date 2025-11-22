@@ -12,14 +12,6 @@
         </div>
       </header>
 
-      <!-- difficulty selector -->
-      <div class="difficulty">
-        <label>{{ t('hangman.difficulty') }}:</label>
-        <div class="diff-buttons">
-          <button v-for="d in ['easy','medium','hard']" :key="d" class="diff-btn" :aria-pressed="difficulty===d" :class="{active: difficulty===d}" @click="changeDifficulty(d)">{{ d }}</button>
-        </div>
-      </div>
-
       <div class="word" aria-live="polite">
         <span v-for="(ch, i) in displayWord" :key="i" :class="['ch', { revealed: ch !== '_' }]">{{ ch }}</span>
       </div>

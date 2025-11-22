@@ -36,6 +36,8 @@
     "won": "You won! The word was",
     "lost": "Game over. The word was",
     "reset": "Reset",
-    "back": "Back to dashboard"
+    "back": "Back to dashboard",
+    "score": "Score",
+    "highScore": "High Score"
   }
 }
