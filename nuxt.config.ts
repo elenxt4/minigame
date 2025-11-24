@@ -30,32 +30,5 @@ export default defineNuxtConfig({
       alwaysRedirect: false,
       fallbackLocale: 'es'
     }
-  },
-  app: {
-    head: {
-      charset: 'utf-8',
-      viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
-      title: 'MiniGame - Play Fun Online Games',
-      meta: [
-        { name: 'description', content: 'Play fun mini-games: Hangman, Guess the Number, Rock Paper Scissors' },
-        { name: 'theme-color', content: '#667eea' },
-      ],
-      link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'manifest', href: '/manifest.json' },
-      ],
-    },
-  },
-  vite: {
-    build: {
-      cssCodeSplit: true,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            'game-store': ['./stores/game'],
-          },
-        },
-      },
-    },
-  },
+  }
 })
