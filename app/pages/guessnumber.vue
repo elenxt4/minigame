@@ -104,6 +104,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from '#imports';
 import { useGameStore } from '../../stores/game';
+import { useLoading } from '../../composables/useLoading';
 import NuxtCard from '../components/NuxtCard.vue';
 import NuxtButton from '../components/NuxtButton.vue';
 
