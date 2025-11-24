@@ -157,6 +157,7 @@ const goBackToDashboard = async () => {
 
 const { t, locale } = useI18n();
 const setLang = (l) => { locale.value = l };
+
 const { setPageMeta } = useSeoMeta();
 
 setPageMeta({
@@ -164,7 +165,6 @@ setPageMeta({
   description: 'Play the classic word guessing game online',
   path: '/hangman',
 });
-
 const game = useGameStore();
 
 onMounted(async () => {
