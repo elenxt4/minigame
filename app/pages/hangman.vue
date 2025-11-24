@@ -45,7 +45,13 @@ import { useI18n } from 'vue-i18n';
 import { useGameStore } from '../../stores/game';
 import NuxtButton from '../components/NuxtButton.vue';
 import NuxtCard from '../components/NuxtCard.vue';
-import { useSound } from '@/composables/useSound';
+
+const { t, locale } = useI18n();
+const setLang = (l) => { locale.value = l };
+const { playClick, playError, playSuccess, playApplause } = await import('../../composables/useSound').then(m => m.useSound());
+const router = useRouter();
+const { showLoading, hideLoading } = useLoading();
+const game = useGameStore();
 
 // word lists are loaded from public/hangman/easy.json
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
@@ -105,8 +111,6 @@ const displayWord = computed(() => {
 const gameWon = computed(() => !displayWord.value.includes('_'));
 const gameOver = computed(() => lives.value <= 0 || gameWon.value);
 
-const { playError, playClick, playSuccess, playApplause } = useSound()
-
 const guess = (letter) => {
   if (gameOver.value || guessed.value.includes(letter)) return;
   guessed.value.push(letter);
@@ -145,8 +149,6 @@ const resetGame = () => {
   }
 };
 
-const router = useRouter();
-const { showLoading, hideLoading } = useLoading();
 const goBackToDashboard = async () => {
   showLoading(t('hangman.returning'));
   await new Promise(resolve => setTimeout(resolve, 300));
@@ -154,10 +156,8 @@ const goBackToDashboard = async () => {
   hideLoading();
 };
 
-const { t, locale } = useI18n();
-const setLang = (l) => { locale.value = l };
 
-const game = useGameStore();
+
 
 onMounted(async () => {
   await loadWords();
