@@ -43,7 +43,6 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from '#imports';
 import { useI18n } from 'vue-i18n';
 import { useGameStore } from '../../stores/game';
-import { useLoading } from '../../composables/useLoading';
 import NuxtButton from '../components/NuxtButton.vue';
 import NuxtCard from '../components/NuxtCard.vue';
 // use a relative import so Vite resolves this file from the app/pages directory
@@ -158,6 +157,13 @@ const goBackToDashboard = async () => {
 
 const { t, locale } = useI18n();
 const setLang = (l) => { locale.value = l };
+const { setPageMeta } = useSeoMeta();
+
+setPageMeta({
+  title: `${t('hangman.title')} - MiniGame`,
+  description: 'Play the classic word guessing game online',
+  path: '/hangman',
+});
 
 const game = useGameStore();
 
