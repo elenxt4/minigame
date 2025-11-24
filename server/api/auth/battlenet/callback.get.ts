@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing code' });
   }
 
-  const base = config.public.baseURL || 'http://localhost:3000';
+const base = (config.public.baseURL || 'https://minigame-gules.vercel.app').replace(/\/$/, '');
   const region = config.battlenetRegion || 'eu';
   const tokenUrl = `https://${region}.battle.net/oauth/token`;
   const redirectUri = `${base}/api/auth/battlenet/callback`;
