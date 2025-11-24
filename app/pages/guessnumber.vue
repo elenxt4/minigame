@@ -12,12 +12,30 @@
 
         <div v-if="!gameStarted" class="start-screen">
           <p class="instructions">{{ t('guessNumber.instructions') }}</p>
+          
+          <div class="difficulty-selector">
+            <h3>{{ t('guessNumber.selectDifficulty') }}</h3>
+            <div class="difficulty-buttons">
+              <button 
+                v-for="level in difficulties" 
+                :key="level.id"
+                :class="['difficulty-btn', { active: selectedDifficulty === level.id }]"
+                @click="selectedDifficulty = level.id"
+              >
+                <span class="difficulty-icon">{{ level.icon }}</span>
+                <span class="difficulty-name">{{ t(`guessNumber.${level.id}`) }}</span>
+                <span class="difficulty-desc">{{ t(`guessNumber.${level.id}Desc`) }}</span>
+              </button>
+            </div>
+          </div>
+          
           <NuxtButton variant="primary" @click="startGame">{{ t('guessNumber.start') }}</NuxtButton>
         </div>
 
         <div v-else class="game-area">
           <div class="game-info">
-            <p class="range-hint">{{ t('guessNumber.range', { min: 1, max: 100 }) }}</p>
+            <p class="difficulty-badge">{{ t(`guessNumber.${currentDifficultyConfig.id}`) }} {{ currentDifficultyConfig.icon }}</p>
+            <p class="range-hint">{{ t('guessNumber.range', { min: 1, max: currentDifficultyConfig.maxNumber }) }}</p>
             <p class="attempts">{{ t('guessNumber.attemptsLeft', { count: attemptsLeft }) }}</p>
           </div>
 
@@ -26,7 +44,7 @@
               type="number" 
               v-model.number="currentGuess" 
               :min="1" 
-              :max="100"
+              :max="currentDifficultyConfig.maxNumber"
               :placeholder="t('guessNumber.enterGuess')"
               @keyup.enter="makeGuess"
               :disabled="processing"
@@ -87,13 +105,19 @@ import NuxtButton from '../components/NuxtButton.vue';
 const { t } = useI18n();
 const { playClick, playError, playSuccess, playApplause } = await import('../../composables/useSound').then(m => m.useSound());
 
-const MAX_ATTEMPTS = 10;
 const game = useGameStore();
 
+const difficulties = [
+  { id: 'easy', icon: '😊', maxNumber: 50, attempts: 12, multiplier: 1 },
+  { id: 'medium', icon: '🤔', maxNumber: 100, attempts: 10, multiplier: 1.5 },
+  { id: 'hard', icon: '😰', maxNumber: 200, attempts: 8, multiplier: 2 }
+];
+
+const selectedDifficulty = ref('medium');
 const gameStarted = ref(false);
 const targetNumber = ref(0);
 const currentGuess = ref(null);
-const attemptsLeft = ref(MAX_ATTEMPTS);
+const attemptsLeft = ref(10);
 const guessHistory = ref([]);
 const won = ref(false);
 const feedback = ref('');
@@ -101,16 +125,21 @@ const feedbackClass = ref('');
 const processing = ref(false);
 const sessionPoints = ref(0);
 const shakeCard = ref(false);
+const currentDifficultyConfig = ref(difficulties[1]);
 
 const isValidGuess = computed(() => {
-  return currentGuess.value >= 1 && currentGuess.value <= 100;
+  const max = currentDifficultyConfig.value.maxNumber;
+  return currentGuess.value >= 1 && currentGuess.value <= max;
 });
 
 const startGame = () => {
   playClick();
-  targetNumber.value = Math.floor(Math.random() * 100) + 1;
+  const config = difficulties.find(d => d.id === selectedDifficulty.value) || difficulties[1];
+  currentDifficultyConfig.value = config;
+  
+  targetNumber.value = Math.floor(Math.random() * config.maxNumber) + 1;
   gameStarted.value = true;
-  attemptsLeft.value = MAX_ATTEMPTS;
+  attemptsLeft.value = config.attempts;
   guessHistory.value = [];
   won.value = false;
   feedback.value = '';
@@ -134,9 +163,10 @@ const makeGuess = () => {
     feedback.value = t('guessNumber.correct');
     feedbackClass.value = 'correct';
     
-    // Calculate points: more attempts left = more points
-    // Base: 100 points, +10 per attempt remaining
-    const pts = 100 + (attemptsLeft.value * 10);
+    // Calculate points: more attempts left = more points, multiplied by difficulty
+    // Base: 100 points, +10 per attempt remaining, times multiplier
+    const basePoints = 100 + (attemptsLeft.value * 10);
+    const pts = Math.round(basePoints * currentDifficultyConfig.value.multiplier);
     sessionPoints.value = pts;
     
     game.recordGameResult('guessNumber', { won: true, points: pts });
@@ -174,7 +204,11 @@ const makeGuess = () => {
 
 const resetGame = () => {
   playClick();
-  startGame();
+  gameStarted.value = false;
+  won.value = false;
+  feedback.value = '';
+  guessHistory.value = [];
+  currentGuess.value = null;
 };
 
 onMounted(() => {
@@ -236,6 +270,72 @@ onMounted(() => {
   line-height: 1.6;
 }
 
+.difficulty-selector {
+  margin: 2rem 0;
+}
+
+.difficulty-selector h3 {
+  font-size: 1.2rem;
+  color: #2d3748;
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.difficulty-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.difficulty-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e2e8f0 100%);
+  border: 3px solid transparent;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.difficulty-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.difficulty-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.difficulty-btn.active .difficulty-name,
+.difficulty-btn.active .difficulty-desc {
+  color: white;
+}
+
+.difficulty-icon {
+  font-size: 2.5rem;
+}
+
+.difficulty-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2d3748;
+  text-transform: capitalize;
+}
+
+.difficulty-desc {
+  font-size: 0.85rem;
+  color: #4a5568;
+  text-align: center;
+}
+
 .game-area {
   display: flex;
   flex-direction: column;
@@ -244,6 +344,17 @@ onMounted(() => {
 
 .game-info {
   text-align: center;
+}
+
+.difficulty-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
 }
 
 .range-hint {
