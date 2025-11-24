@@ -45,6 +45,7 @@ import { useI18n } from 'vue-i18n';
 import { useGameStore } from '../../stores/game';
 import NuxtButton from '../components/NuxtButton.vue';
 import NuxtCard from '../components/NuxtCard.vue';
+import { useSound } from '@/composables/useSound';
 
 // word lists are loaded from public/hangman/easy.json
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
