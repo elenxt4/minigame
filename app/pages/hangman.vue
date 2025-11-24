@@ -43,6 +43,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from '#imports';
 import { useI18n } from 'vue-i18n';
 import { useGameStore } from '../../stores/game';
+import { useLoading } from '../../composables/useLoading';
 import NuxtButton from '../components/NuxtButton.vue';
 import NuxtCard from '../components/NuxtCard.vue';
 // use a relative import so Vite resolves this file from the app/pages directory
@@ -147,7 +148,13 @@ const resetGame = () => {
 };
 
 const router = useRouter();
-const goBackToDashboard = () => router.push('/dashboard');
+const { showLoading, hideLoading } = useLoading();
+const goBackToDashboard = async () => {
+  showLoading(t('hangman.returning'));
+  await new Promise(resolve => setTimeout(resolve, 300));
+  await router.push('/dashboard');
+  hideLoading();
+};
 
 const { t, locale } = useI18n();
 const setLang = (l) => { locale.value = l };

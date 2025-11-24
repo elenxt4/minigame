@@ -13,9 +13,14 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
+import { useLoading } from '~/composables/useLoading'
+
 const { t } = useI18n()
+const { showLoading } = useLoading()
 
 const loginBattleNet = () => {
+  // Show loading spinner while redirecting
+  showLoading(t('home.loggingIn'))
   // Redirect to server-side login endpoint to start OAuth flow
   window.location.href = '/api/auth/battlenet/login';
 };

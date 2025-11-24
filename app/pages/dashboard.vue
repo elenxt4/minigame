@@ -85,6 +85,7 @@ import { useFetch } from '#imports';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from '#imports';
 import { useGameStore } from '../../stores/game';
+import { useLoading } from '../../composables/useLoading';
 import NuxtCard from '../components/NuxtCard.vue';
 import NuxtButton from '../components/NuxtButton.vue';
 // fetch current user profile (returns { authenticated, profile })
@@ -92,6 +93,7 @@ const { data: me } = await useFetch('/api/auth/me');
 const stats = await useFetch('/api/user/stats');
 const { t, locale, setLocale } = useI18n();
 const router = useRouter();
+const { showLoading, hideLoading } = useLoading();
 
 const game = useGameStore();
 
@@ -121,8 +123,12 @@ watch(() => game.lastServerUpdateAt, (v, old) => {
 	}
 });
 
-const playGame = (gameName) => {
-	router.push(`/${gameName}`);
+const playGame = async (gameName) => {
+	showLoading(t('dashboard.loadingGame'));
+	// Small delay for loading animation
+	await new Promise(resolve => setTimeout(resolve, 300));
+	await router.push(`/${gameName}`);
+	hideLoading();
 };
 
 const recordWin = async () => {

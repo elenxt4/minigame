@@ -7,7 +7,8 @@
   "home": {
     "title": "Bienvenido a MiniGame",
     "subtitle": "Para descubrir más juegos, por favor inicia sesión en Battle.net",
-    "loginBattleNet": "Iniciar sesión con Battle.net"
+    "loginBattleNet": "Iniciar sesión con Battle.net",
+    "loggingIn": "Iniciando sesión..."
   }, 
     "about": {
         "title": "Sobre nosotros",
@@ -32,7 +33,8 @@
     "ties": "Empates",
     "highScore": "Puntuación más alta",
     "globalStats": "Estadísticas Globales",
-    "gameStats": "Estadísticas por Juego"
+    "gameStats": "Estadísticas por Juego",
+    "loadingGame": "Cargando juego..."
   }
   ,
   "hangman": {
@@ -43,7 +45,8 @@
     "reset": "Reiniciar",
     "back": "Volver al dashboard",
     "score": "Puntuación",
-    "highScore": "Puntuación más alta"
+    "highScore": "Puntuación más alta",
+    "returning": "Volviendo al panel..."
   },
   "guessNumber": {
     "title": "Adivina el Número",
@@ -72,7 +75,8 @@
     "playAgain": "Jugar de Nuevo",
     "history": "Tus intentos:",
     "score": "Puntuación",
-    "highScore": "Puntuación más alta"
+    "highScore": "Puntuación más alta",
+    "returning": "Volviendo al panel..."
   },
   "rps": {
     "title": "Piedra Papel o Tijera",
@@ -93,6 +97,7 @@
     "playAgain": "Jugar de Nuevo",
     "back": "Volver al dashboard",
     "score": "Puntuación",
-    "highScore": "Puntuación más alta"
+    "highScore": "Puntuación más alta",
+    "returning": "Volviendo al panel..."
   }
 }

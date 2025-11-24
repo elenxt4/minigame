@@ -80,14 +80,25 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from '#imports';
 import { useGameStore } from '../../stores/game';
+import { useLoading } from '../../composables/useLoading';
 import NuxtCard from '../components/NuxtCard.vue';
 import NuxtButton from '../components/NuxtButton.vue';
 
 const { t } = useI18n();
 const { playClick, playError, playSuccess, playApplause } = await import('../../composables/useSound').then(m => m.useSound());
+const router = useRouter();
+const { showLoading, hideLoading } = useLoading();
 
 const game = useGameStore();
+
+const goBackToDashboard = async () => {
+  showLoading(t('rps.returning'));
+  await new Promise(resolve => setTimeout(resolve, 300));
+  await router.push('/dashboard');
+  hideLoading();
+};
 
 const choices = ['rock', 'paper', 'scissors'];
 const gameStarted = ref(false);
@@ -463,5 +474,10 @@ onMounted(() => {
 @keyframes winPulse {
   0%, 100% { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
   50% { box-shadow: 0 20px 60px rgba(240, 147, 251, 0.6); }
+}
+
+.back-button {
+  margin-top: 2rem;
+  text-align: center;
 }
 </style>
