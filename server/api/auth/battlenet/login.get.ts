@@ -11,7 +11,7 @@ function generateState(len = 24) {
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig();
   const clientId = config.battlenetClientId;
-  const base = config.public.baseURL || 'http://localhost:3000';
+const base = (config.public.baseURL || 'https://minigame-gules.vercel.app').replace(/\/$/, '');
   const region = config.battlenetRegion || 'eu';
 
   const redirectUri = `${base}/api/auth/battlenet/callback`;
