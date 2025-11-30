@@ -42,13 +42,13 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from '#imports';
 import { useI18n } from 'vue-i18n';
-import { useGameStore } from '../../stores/game';
+import { useGameStore } from '../stores/game';
 import NuxtButton from '../components/NuxtButton.vue';
 import NuxtCard from '../components/NuxtCard.vue';
 
 const { t, locale } = useI18n();
 const setLang = (l) => { locale.value = l };
-const { playClick, playError, playSuccess, playApplause } = await import('../../composables/useSound').then(m => m.useSound());
+const { playClick, playError, playSuccess, playApplause } = await import('../composables/useSound').then(m => m.useSound());
 const router = useRouter();
 const { showLoading, hideLoading } = useLoading();
 const game = useGameStore();
