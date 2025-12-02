@@ -108,6 +108,20 @@ const gameStarted = ref(false);
 const selectedDifficulty = ref('medium');
 const currentDifficulty = ref('medium');
 
+function uploadScore(){
+  fetch('http://localhost:8080/api/rankings', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      battle_tag: game.user || 'guest',
+      score: game.hangman.currentScore,
+      difficulty_level: difficulties.find(d => d.id === currentDifficulty.value)?.id === 'easy' ? 1 : difficulties.find(d => d.id === currentDifficulty.value)?.id === 'medium' ? 2 : 3,
+    })
+})
+}
+
 const loadWords = async () => {
   // prefer locale-specific lists: /hangman/{lang}/easy.json
   const lang = (locale && locale.value) ? locale.value.split('-')[0] : 'en';
@@ -190,6 +204,7 @@ const guess = (letter) => {
     try { playSuccess() } catch (e) {}
     // if this correct guess completed the word, play applause immediately for better UX
     if (gameWon.value) {
+      uploadScore();
       try { playApplause() } catch (e) {}
     }
   } else {
