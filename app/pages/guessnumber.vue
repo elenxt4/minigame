@@ -122,9 +122,9 @@ const goBackToDashboard = async () => {
 };
 
 const difficulties = [
-  { id: 'easy', icon: '😊', maxNumber: 50, attempts: 12, multiplier: 1 },
-  { id: 'medium', icon: '🤔', maxNumber: 100, attempts: 10, multiplier: 1.5 },
-  { id: 'hard', icon: '😰', maxNumber: 200, attempts: 8, multiplier: 2 }
+  { id: 'easy', maxNumber: 50, attempts: 12, multiplier: 1 },
+  { id: 'medium', maxNumber: 100, attempts: 10, multiplier: 1.5 },
+  { id: 'hard', maxNumber: 200, attempts: 8, multiplier: 2 }
 ];
 
 const selectedDifficulty = ref('medium');

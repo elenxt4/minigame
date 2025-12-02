@@ -34,19 +34,34 @@
     "highScore": "High Score",
     "globalStats": "Global Statistics",
     "gameStats": "Individual Game Statistics",
-    "loadingGame": "Loading game..."
+    "loadingGame": "Loading game...",
+    "ranking": "Ranking",
+    "viewRanking": "View Ranking",
+    "loadingRanking": "Loading ranking..."
   }
   ,
   "hangman": {
     "title": "Hangman",
     "lives": "Lives",
-    "won": "You won! The word was",
-    "lost": "Game over. The word was",
+    "won": "You Won!",
+    "lost": "Game Over",
     "reset": "Reset",
     "back": "Back to dashboard",
     "score": "Score",
     "highScore": "High Score",
-    "returning": "Returning to dashboard..."
+    "returning": "Returning to dashboard...",
+    "selectDifficulty": "Select Difficulty",
+    "easy": "Easy",
+    "easyDesc": "8 lives",
+    "medium": "Medium",
+    "mediumDesc": "6 lives",
+    "hard": "Hard",
+    "hardDesc": "4 lives",
+    "instructions": "Guess the word letter by letter. Choose your difficulty!",
+    "start": "Start Game",
+    "wordWas": "The word was:",
+    "earnedPoints": "You earned {points} points!",
+    "playAgain": "Play Again"
   },
   "guessNumber": {
     "title": "Guess the Number",
@@ -76,7 +91,8 @@
     "history": "Your guesses:",
     "score": "Score",
     "highScore": "High Score",
-    "returning": "Returning to dashboard..."
+    "returning": "Returning to dashboard...",
+    "back": "Back to dashboard"
   },
   "rps": {
     "title": "Rock Paper Scissors",
@@ -99,5 +115,13 @@
     "score": "Score",
     "highScore": "High Score",
     "returning": "Returning to dashboard..."
+  },
+  "ranking": {
+    "title": "Ranking",
+    "subtitle": "Top players across all games",
+    "comingSoon": "Player rankings coming soon...",
+    "backToDashboard": "Back to Dashboard",
+    "errorLoading": "Error loading rankings. Please try again later.",
+    "noPlayers": "No players yet"
   }
 }

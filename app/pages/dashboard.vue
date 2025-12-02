@@ -62,20 +62,27 @@
 				</div>
 			</div>
 
-			<div class="play-section">
-				<h2>{{ t('dashboard.play') }}</h2>
-				<div class="actions">
-					<NuxtButton variant="primary" @click.prevent="playGame('hangman')">
-						🎯 {{ t('dashboard.playHangman') }}
-					</NuxtButton>
-					<NuxtButton variant="primary" @click.prevent="playGame('guessnumber')">
-						🔢 {{ t('dashboard.playGuessNumber') }}
-					</NuxtButton>
-					<NuxtButton variant="primary" @click.prevent="playGame('rockpaperscissors')">
-						✂️ {{ t('dashboard.playRPS') }}
-					</NuxtButton>
-				</div>
+		<div class="play-section">
+			<h2>{{ t('dashboard.play') }}</h2>
+			<div class="actions">
+				<NuxtButton variant="primary" @click.prevent="playGame('hangman')" class="game-button">
+					🎯 {{ t('dashboard.playHangman') }}
+				</NuxtButton>
+				<NuxtButton variant="primary" @click.prevent="playGame('guessnumber')" class="game-button">
+					🔢 {{ t('dashboard.playGuessNumber') }}
+				</NuxtButton>
+				<NuxtButton variant="primary" @click.prevent="playGame('rockpaperscissors')" class="game-button">
+					✂️ {{ t('dashboard.playRPS') }}
+				</NuxtButton>
 			</div>
+
+			<div class="ranking-section">
+				<h2>{{ t('dashboard.ranking') }}</h2>
+				<NuxtButton variant="secondary" @click.prevent="goToRanking" class="ranking-button">
+					🏆 {{ t('dashboard.viewRanking') }}
+				</NuxtButton>
+			</div>
+		</div>
 		</div>
 </template>
 
@@ -130,6 +137,13 @@ const playGame = async (gameName) => {
 	hideLoading();
 };
 
+const goToRanking = async () => {
+	showLoading(t('dashboard.loadingRanking') || 'Cargando ranking...');
+	await new Promise(resolve => setTimeout(resolve, 300));
+	await router.push('/ranking');
+	hideLoading();
+};
+
 const recordWin = async () => {
 	await $fetch('/api/user/stats', { method: 'POST', body: { increment: { gamesPlayed: 1, wins: 1, highScore: 1200 } } });
 	await stats.refresh();
@@ -150,6 +164,16 @@ const recordWin = async () => {
 	border-radius: 12px;
 	padding: 1.5rem;
 	box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.play-section {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.play-section > h2 {
+	text-align: center;
 }
 
 .stats-category {
@@ -215,6 +239,54 @@ const recordWin = async () => {
 	flex-direction: column;
 	gap: 1rem;
 	margin-top: 1rem;
+	width: 100%;
+	align-items: center;
+}
+
+.game-button {
+	min-height: 60px;
+	font-size: 1.1rem;
+	font-weight: 600;
+	transition: all 0.3s ease;
+	width: 100%;
+	max-width: 400px;
+}
+
+.game-button:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+	background: linear-gradient(135deg, #a5b4fc 0%, #8b9dfc 100%);
+}
+
+.ranking-section {
+	margin-top: 2rem;
+	padding-top: 2rem;
+	border-top: 1px solid #e2e8f0;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.ranking-section h2 {
+	font-size: 1.2rem;
+	margin-bottom: 1rem;
+	text-align: center;
+}
+
+.ranking-button {
+	min-height: 60px;
+	font-size: 1.1rem;
+	font-weight: 600;
+	transition: all 0.3s ease;
+	width: 100%;
+	max-width: 400px;
+}
+
+.ranking-button:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+	background: linear-gradient(135deg, #a5b4fc 0%, #8b9dfc 100%);
 }
 
 @media (max-width: 800px) {
