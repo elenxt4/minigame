@@ -81,12 +81,12 @@
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from '#imports';
-import { useGameStore } from '../../stores/game';
+import { useGameStore } from '../stores/game';
 import NuxtCard from '../components/NuxtCard.vue';
 import NuxtButton from '../components/NuxtButton.vue';
 
 const { t } = useI18n();
-const { playClick, playError, playSuccess, playApplause } = await import('../../composables/useSound').then(m => m.useSound());
+const { playClick, playError, playSuccess, playApplause } = await import('../composables/useSound').then(m => m.useSound());
 const router = useRouter();
 const { showLoading, hideLoading } = useLoading();
 

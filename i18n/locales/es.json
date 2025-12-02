@@ -34,19 +34,34 @@
     "highScore": "Puntuación más alta",
     "globalStats": "Estadísticas Globales",
     "gameStats": "Estadísticas por Juego",
-    "loadingGame": "Cargando juego..."
+    "loadingGame": "Cargando juego...",
+    "ranking": "Ranking",
+    "viewRanking": "Ver Ranking",
+    "loadingRanking": "Cargando ranking..."
   }
   ,
   "hangman": {
     "title": "Ahorcado",
     "lives": "Vidas",
-    "won": "¡Has ganado! La palabra era",
-    "lost": "Juego terminado. La palabra era",
+    "won": "¡Ganaste!",
+    "lost": "Juego Terminado",
     "reset": "Reiniciar",
     "back": "Volver al dashboard",
     "score": "Puntuación",
     "highScore": "Puntuación más alta",
-    "returning": "Volviendo al panel..."
+    "returning": "Volviendo al panel...",
+    "selectDifficulty": "Selecciona la Dificultad",
+    "easy": "Fácil",
+    "easyDesc": "8 vidas",
+    "medium": "Medio",
+    "mediumDesc": "6 vidas",
+    "hard": "Difícil",
+    "hardDesc": "4 vidas",
+    "instructions": "¡Adivina la palabra letra por letra. Elige tu dificultad!",
+    "start": "Comenzar Juego",
+    "wordWas": "La palabra era:",
+    "earnedPoints": "¡Ganaste {points} puntos!",
+    "playAgain": "Jugar de Nuevo"
   },
   "guessNumber": {
     "title": "Adivina el Número",
@@ -76,7 +91,8 @@
     "history": "Tus intentos:",
     "score": "Puntuación",
     "highScore": "Puntuación más alta",
-    "returning": "Volviendo al panel..."
+    "returning": "Volviendo al panel...",
+    "back": "Volver al dashboard"
   },
   "rps": {
     "title": "Piedra Papel o Tijera",
@@ -98,6 +114,15 @@
     "back": "Volver al dashboard",
     "score": "Puntuación",
     "highScore": "Puntuación más alta",
-    "returning": "Volviendo al panel..."
+    "returning": "Volviendo al panel...",
+    "back": "Volver al dashboard"
+  },
+  "ranking": {
+    "title": "Ranking",
+    "subtitle": "Mejores jugadores de todos los juegos",
+    "comingSoon": "Próximamente rankings de jugadores...",
+    "backToDashboard": "Volver al Dashboard",
+    "errorLoading": "Error al cargar los rankings. Inténtalo de nuevo más tarde.",
+    "noPlayers": "No hay jugadores aún"
   }
 }

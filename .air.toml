@@ -1,0 +1,5 @@
+[build]
+args_bin = []
+bin = "./tmp/main.exe"
+cmd = "go build -o ./tmp/main.exe ./cmd/main.go"
+exclude_dir = ["node_modules", "tmp", ".git"]

@@ -1,0 +1,37 @@
+version: '3'
+
+dotenv: [".env"]
+
+tasks:
+  env-test:
+    env:
+      CHECK: "{{.CHECK}}"
+    cmds:
+      - echo ".env load status {{.CHECK}}"
+    desc: "Check if .env is loaded correctly"
+  run:
+    cmds:
+      - air
+    desc: "Run the server with live reload"
+
+  migrate-up:
+    env:
+      DB_USER: "{{.DB_USER}}"
+      DB_PASSWORD: "{{.DB_PASSWORD}}"
+      DB_NAME: "{{.DB_NAME}}"
+      DB_HOST: "{{.DB_HOST}}"
+      DB_PORT: "{{.DB_PORT}}"
+    cmds:
+      - goose -dir migrations postgres "user={{.DB_USER}} password={{.DB_PASSWORD}} dbname={{.DB_NAME}} host={{.DB_HOST}} port={{.DB_PORT}} sslmode=disable" up
+    desc: "Run all database migrations"
+
+  migrate-down:
+    env:
+      DB_USER: "{{.DB_USER}}"
+      DB_PASSWORD: "{{.DB_PASSWORD}}"
+      DB_NAME: "{{.DB_NAME}}"
+      DB_HOST: "{{.DB_HOST}}"
+      DB_PORT: "{{.DB_PORT}}"
+    cmds:
+      - goose -dir migrations postgres "user={{.DB_USER}} password={{.DB_PASSWORD}} dbname={{.DB_NAME}} host={{.DB_HOST}} port={{.DB_PORT}} sslmode=disable" down
+    desc: "Revert last database migration"

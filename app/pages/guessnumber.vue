@@ -103,12 +103,12 @@
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from '#imports';
-import { useGameStore } from '../../stores/game';
+import { useGameStore } from '../stores/game';
 import NuxtCard from '../components/NuxtCard.vue';
 import NuxtButton from '../components/NuxtButton.vue';
 
 const { t } = useI18n();
-const { playClick, playError, playSuccess, playApplause } = await import('../../composables/useSound').then(m => m.useSound());
+const { playClick, playError, playSuccess, playApplause } = await import('../composables/useSound').then(m => m.useSound());
 const router = useRouter();
 const { showLoading, hideLoading } = useLoading();
 
@@ -122,9 +122,9 @@ const goBackToDashboard = async () => {
 };
 
 const difficulties = [
-  { id: 'easy', icon: '😊', maxNumber: 50, attempts: 12, multiplier: 1 },
-  { id: 'medium', icon: '🤔', maxNumber: 100, attempts: 10, multiplier: 1.5 },
-  { id: 'hard', icon: '😰', maxNumber: 200, attempts: 8, multiplier: 2 }
+  { id: 'easy', maxNumber: 50, attempts: 12, multiplier: 1 },
+  { id: 'medium', maxNumber: 100, attempts: 10, multiplier: 1.5 },
+  { id: 'hard', maxNumber: 200, attempts: 8, multiplier: 2 }
 ];
 
 const selectedDifficulty = ref('medium');
